@@ -1,0 +1,12 @@
+node_modules
+dist
+types
+.vscode
+.husky
+.gitignore
+*.woff
+*.ttf
+*.sh
+*.scss
+*.css
+*.svg
