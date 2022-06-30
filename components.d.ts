@@ -5,6 +5,8 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    'ICarbon:locked': typeof import('~icons/carbon/locked')['default']
+    'ICarbon:user': typeof import('~icons/carbon/user')['default']
     'IMdi:weatherNight': typeof import('~icons/mdi/weather-night')['default']
     'IMdi:weatherSunny': typeof import('~icons/mdi/weather-sunny')['default']
     NavBar: typeof import('./src/components/NavBar.vue')['default']
