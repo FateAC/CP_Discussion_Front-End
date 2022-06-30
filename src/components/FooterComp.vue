@@ -6,6 +6,6 @@ const copyright = new Date().getFullYear()
 
 <template>
     <n-layout-footer w="full" h="16" m="x-auto" text="lg center" bordered position="absolute">
-        <span class="">Copyright &copy; {{ copyright }} FateAC</span>
+        <span style="line-height: 3em;">Copyright &copy; {{ copyright }} FateAC</span>
     </n-layout-footer>
 </template>
