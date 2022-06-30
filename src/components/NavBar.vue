@@ -5,20 +5,12 @@ import { isDark } from "~/scripts/useDarks"
 
 <template>
 	<n-layout-header h="16" p="x-6" bordered>
-		<n-space
-			h="full"
-			max-w="7xl"
-			m="x-auto"
-			p="x-sm"
-			align="center"
-			justify="space-between"
-            font="bold"
-            text="xl"
-		>
+		<n-space h="full" max-w="7xl" m="x-auto" p="x-sm" align="center" justify="space-between" font="bold" text="xl">
 			<n-space>
 				<router-link to="/">Home</router-link>
 			</n-space>
 			<n-space>
+				<router-link to="/login">Login</router-link>
 				<n-switch v-model:value="isDark" size="large">
 					<template #checked-icon>
 						<i-mdi:weather-night />
@@ -27,7 +19,6 @@ import { isDark } from "~/scripts/useDarks"
 						<i-mdi:weather-sunny />
 					</template>
 				</n-switch>
-				<router-link to="/login">Login</router-link>
 			</n-space>
 		</n-space>
 	</n-layout-header>

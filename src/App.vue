@@ -11,6 +11,7 @@ import {
 	NLayout
 } from "naive-ui"
 import NavBar from "./components/NavBar.vue"
+import FooterComp from "./components/FooterComp.vue"
 import { isDark } from "~/scripts/useDarks"
 
 isDark.value = (useOsTheme().value === "dark")
@@ -23,24 +24,18 @@ const theme = computed(() => (isDark.value ? darkTheme : null))
 			<n-dialog-provider>
 				<n-notification-provider>
 					<n-message-provider>
-						<n-layout position="absolute">
-							<NavBar />
-							<router-view />
-						</n-layout>
+						<div h="full" position="relative">
+							<n-layout position="absolute">
+								<NavBar />
+								<n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
+									<router-view />
+								</n-layout>
+								<FooterComp />
+							</n-layout>
+						</div>
 					</n-message-provider>
 				</n-notification-provider>
 			</n-dialog-provider>
 		</n-loading-bar-provider>
 	</n-config-provider>
 </template>
-
-<style>
-#app {
-	font-family: Avenir, Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
-	color: #2c3e50;
-	margin-top: 60px;
-}
-</style>
