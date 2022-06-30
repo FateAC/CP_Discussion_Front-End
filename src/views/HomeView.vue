@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { NLayoutContent } from "naive-ui"
+</script>
+
 <template>
-    <n-h1>Home</n-h1>
+    <n-layout-content>
+        home
+    </n-layout-content>
 </template>

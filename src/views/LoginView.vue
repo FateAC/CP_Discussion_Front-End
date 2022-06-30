@@ -8,30 +8,18 @@
 					</n-text>
 				</n-h1>
 			</div>
-			<n-form
-				ref="formRef"
-				label-placement="left"
-				:model="formInline"
-				:rules="rules"
-			>
+			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="rules">
 				<n-space vertical size="medium" text="left">
 					<n-form-item path="username">
-						<n-input
-							v-model:value="formInline.username"
-							placeholder="帳號"
-						>
+						<n-input v-model:value="formInline.username" placeholder="帳號">
 							<template #prefix>
 								<i-carbon:user mr="2" color="#808695" />
 							</template>
 						</n-input>
 					</n-form-item>
 					<n-form-item path="password">
-						<n-input
-							v-model:value="formInline.password"
-							type="password"
-							show-password-on="click"
-							placeholder="密碼"
-						>
+						<n-input v-model:value="formInline.password" type="password" show-password-on="click"
+							placeholder="密碼">
 							<template #prefix>
 								<i-carbon:locked mr="2" color="#808695" />
 							</template>
