@@ -1,3 +1,3 @@
 <template>
-    <h1>Home</h1>
+    <n-h1>Home</n-h1>
 </template>

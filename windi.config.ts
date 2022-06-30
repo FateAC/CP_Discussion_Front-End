@@ -8,7 +8,7 @@ import Typography from "windicss/plugin/typography"
 
 
 export default defineConfig({
-	darkMode: "class",
+	darkMode: "media",
 	attributify: true,
 	plugins: [
 		AspectRatio,
