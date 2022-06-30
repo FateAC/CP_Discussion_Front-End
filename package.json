@@ -20,6 +20,7 @@
 		"windicss": "^3.5.5"
 	},
 	"devDependencies": {
+		"@iconify-json/carbon": "^1.1.6",
 		"@iconify-json/mdi": "^1.1.24",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
