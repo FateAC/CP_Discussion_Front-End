@@ -1,7 +1,7 @@
 <template>
-    <n-layout-content has-sider position="absolute" style="top:64px">
-        <SidebarComp></SidebarComp>
-        <ContentComp></ContentComp>
+    <n-layout-content has-sider position="absolute">
+        <sidebar-comp></sidebar-comp>
+        <content-comp></content-comp>
     </n-layout-content>
 </template>
 
