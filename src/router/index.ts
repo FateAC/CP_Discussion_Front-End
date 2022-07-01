@@ -15,6 +15,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/dashboard",
 		name: "dashboard",
 		component: () => import("~/views/DashboardView.vue"),
+	},
+	{
+		path: "/homework",
+		name: "homework",
+		component: () => import("~/views/HomeworkView.vue"),
 	}
 ]
 
