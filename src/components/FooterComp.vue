@@ -5,7 +5,7 @@ const copyright = new Date().getFullYear()
 </script>
 
 <template>
-    <n-layout-footer w="full" h="16" m="x-auto" text="lg center" bordered position="absolute">
-        <span class="">Copyright &copy; {{ copyright }} FateAC</span>
+    <n-layout-footer class="flex" w="full" h="16" position="absolute" bordered>
+        <span m="auto" text="lg">Copyright &copy; {{ copyright }} FateAC</span>
     </n-layout-footer>
 </template>
