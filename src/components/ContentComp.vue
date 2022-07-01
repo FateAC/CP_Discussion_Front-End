@@ -1,52 +1,18 @@
 <template>
-	<n-layout has-sider position="absolute" style="margin-left:20%; margin-left:20%;">
-    <n-layout-sider width="100%" content-style="padding: 24px;">
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-        <n-h2>Yeet</n-h2>
-    </n-layout-sider>
+	<n-layout position="absolute" style="width:70%; margin-left:15%; margin-right:15%;" content-style="padding:24px;">
+		<n-space vertical>
+			<n-h2 v-for="i in 10" :key="i">YEET</n-h2>
+		</n-space>
 	</n-layout>
 </template>
 <script setup lang="ts">
 import {
-	NLayoutSider, 
 	NLayout,
 	NH2,
+	NSpace,
 } from "naive-ui"
 // const isLogin = useLoginStore()
+// 
 
 </script>
 <style scoped>
@@ -62,5 +28,7 @@ import {
   background: rgba(64, 64, 64, 0.4);
 }
 
-
+.n-layout {
+  background: rgba(64, 64, 64, 0.4);
+}
 </style>
