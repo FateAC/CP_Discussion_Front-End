@@ -8,7 +8,7 @@ declare module '@vue/runtime-core' {
     ContentComp: typeof import('./src/components/ContentComp.vue')['default']
     Footer: typeof import("./src/components/Footer.vue")["default"]
     FooterComp: typeof import('./src/components/FooterComp.vue')['default']
-    FourBlockComp: typeof import('./src/components/FourBlockComp.vue')['default']
+    FourBlockComp: typeof import("./src/components/FourBlockComp.vue")["default"]
     'ICarbon:locked': typeof import("~icons/carbon/locked")["default"]
     'ICarbon:user': typeof import("~icons/carbon/user")["default"]
     'IMdi:weatherNight': typeof import('~icons/mdi/weather-night')['default']

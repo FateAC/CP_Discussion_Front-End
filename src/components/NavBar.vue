@@ -8,6 +8,7 @@ import { isDark } from "~/scripts/useDarks"
 		<n-space h="full" max-w="7xl" m="x-auto" p="x-sm" align="center" justify="space-between" font="bold" text="xl">
 			<n-space>
 				<router-link to="/">Home</router-link>
+				<router-link to="/about">About</router-link>
 			</n-space>
 			<n-space>
 				<router-link to="/login">Login</router-link>
