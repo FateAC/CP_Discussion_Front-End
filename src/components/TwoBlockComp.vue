@@ -1,22 +1,18 @@
 <template>
 	<n-space vertical h="full" justify="start" align="center" :wrap-item="false">
-		<n-layout
-			w="full"
-			:native-scrollbar="false"
-			:style="'min-height: '+divideRate+'%; ' +  'max-height: '+divideRate+'%'">
+		<content-comp :style="'min-height: '+divideRate+'%; ' +  'max-height: '+divideRate+'%'">
 			<slot name="two-block-top" />
-		</n-layout>
+		</content-comp>
 		<n-divider w="full"/>
-		<n-layout w="full" :native-scrollbar="false">
+		<content-comp>
 			<slot name="two-block-bottom" />
-		</n-layout>
+		</content-comp>
 	</n-space>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
 import {
-	NLayout,
 	NSpace,
 	NDivider
 } from "naive-ui"
