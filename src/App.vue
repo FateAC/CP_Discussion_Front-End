@@ -24,15 +24,16 @@ const theme = computed(() => (isDark.value ? darkTheme : null))
 			<n-dialog-provider>
 				<n-notification-provider>
 					<n-message-provider>
-						<div h="full" position="relative">
-							<n-layout position="absolute">
-								<NavBar />
-								<n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
+						<n-layout position="absolute">
+							<NavBar />
+							<n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
+								<sidebar-comp />
+								<n-layout>
 									<router-view />
 								</n-layout>
-								<FooterComp />
 							</n-layout>
-						</div>
+							<FooterComp />
+						</n-layout>
 					</n-message-provider>
 				</n-notification-provider>
 			</n-dialog-provider>

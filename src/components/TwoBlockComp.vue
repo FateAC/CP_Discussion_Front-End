@@ -1,30 +1,26 @@
 <template>
-	<n-layout position="absolute">
-		<n-space vertical>
-			<content-comp style="height:50%; background: rgba(99,99,99,0.4);">
-				<slot name="top"></slot>
-			</content-comp>
-			<content-comp style="height:50%; top:50%;">
-				<slot name="bottom"></slot>
-			</content-comp>
-		</n-space>
-	</n-layout>
+	<n-space vertical h="full" justify="start" align="center" :wrap-item="false">
+		<n-layout
+			w="full"
+			:native-scrollbar="false"
+			:style="'min-height: '+divideRate+'%; ' +  'max-height: '+divideRate+'%'">
+			<slot name="two-block-top" />
+		</n-layout>
+		<n-divider w="full"/>
+		<n-layout w="full" :native-scrollbar="false">
+			<slot name="two-block-bottom" />
+		</n-layout>
+	</n-space>
 </template>
+
 <script setup lang="ts">
+import { ref } from "vue"
 import {
 	NLayout,
 	NSpace,
+	NDivider
 } from "naive-ui"
-import ContentComp from "~/components/ContentComp.vue"
-// const isLogin = useLoginStore()
+
+const divideRate = ref(70)
 
 </script>
-<style scoped>
-.n-layout {
-  background: rgba(64, 64, 64, 0.4);
-}
-
-.n-space:deep() .content-comp {
-	height: 50%;
-}
-</style>
