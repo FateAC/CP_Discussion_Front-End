@@ -5,7 +5,7 @@ const users = [
 	{ name: "Adam7066", id: 1, imgName: "adam7066.jpeg", company: "National Taiwan Normal University", description: "小十好可愛~~" },
 	{ name: "LoveSnowEx", id: 2, imgName: "lovesnow.png", company: "National Taiwan Normal University", description: "3.14159 早中晚餐都配酒 OuO" },
 	{ name: "SubaRya", id: 3, imgName: "subarya.jpg", company: "National Taiwan Normal University", description: "穗乃果我婆 OwOb" },
-	{ name: "LaporChen", id: 4, imgName: "laporchen.jpeg", company: "National Taiwan Normal University", description: "韡..." }
+	{ name: "LaporChen", id: 4, imgName: "laporchen.jpeg", company: "National Taiwan Normal University", description: "Bonk." }
 ]
 </script>
 
