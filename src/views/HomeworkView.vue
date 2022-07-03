@@ -1,5 +1,5 @@
 <template>
-	<two-block-comp>
+	<two-block-comp :divideRate="70">
 		<template #two-block-top>
 			<div p="x-1/12 y=4">
 				<n-h2>this is top element</n-h2>

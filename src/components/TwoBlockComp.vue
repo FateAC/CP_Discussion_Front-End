@@ -1,9 +1,24 @@
 <template>
-	<n-space vertical h="full" justify="start" align="center" :wrap-item="false">
-		<content-comp :style="'min-height: '+divideRate+'%; ' +  'max-height: '+divideRate+'%'">
+	<n-space
+		vertical
+		h="full"
+		justify="start"
+		align="center"
+		:wrap-item="false"
+	>
+		<content-comp
+			:style="
+				'min-height: ' +
+				props.divideRate +
+				'%; ' +
+				'max-height: ' +
+				divideRate +
+				'%'
+			"
+		>
 			<slot name="two-block-top" />
 		</content-comp>
-		<n-divider w="full"/>
+		<n-divider w="full" />
 		<content-comp>
 			<slot name="two-block-bottom" />
 		</content-comp>
@@ -11,12 +26,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import {
-	NSpace,
-	NDivider
-} from "naive-ui"
+import { defineProps } from "vue"
+import { NSpace, NDivider } from "naive-ui"
 
-const divideRate = ref(70)
+interface Props {
+	divideRate?: number
+}
 
+const props = withDefaults(defineProps<Props>(), {
+	divideRate: 50,
+})
 </script>
