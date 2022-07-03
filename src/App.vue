@@ -27,10 +27,7 @@ const theme = computed(() => (isDark.value ? darkTheme : null))
 						<n-layout position="absolute">
 							<NavBar />
 							<n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
-								<sidebar-comp />
-								<n-layout>
-									<router-view />
-								</n-layout>
+								<router-view />
 							</n-layout>
 							<FooterComp />
 						</n-layout>
