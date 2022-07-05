@@ -6,11 +6,15 @@
 		"dev": "vite",
 		"build": "vue-tsc --noEmit && vite build",
 		"preview": "vite preview",
-		"lint": "eslint . --ext .jsx,.js,.ts,.tsx,.vue,.json"
+		"lint": "eslint . --ext .jsx,.js,.ts,.tsx,.vue,.json",
+		"prettier": "prettier --write ."
 	},
 	"dependencies": {
 		"@vueuse/core": "^8.7.5",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
 		"naive-ui": "^2.30.8",
+		"prettier": "^2.7.1",
 		"unplugin-icons": "^0.14.7",
 		"unplugin-vue-components": "^0.20.1",
 		"vfonts": "^0.0.3",

@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import {
-	NLayout,
-} from "naive-ui"
+import { NLayout } from "naive-ui"
 // const isLogin = useLoginStore()
 </script>

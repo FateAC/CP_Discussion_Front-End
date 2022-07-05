@@ -3,32 +3,34 @@
 		<n-space vertical justify="space-around" size="large">
 			<div text="center" m="y-8">
 				<n-h1>
-					<n-text type="primary">
-						Login
-					</n-text>
+					<n-text type="primary"> Login </n-text>
 				</n-h1>
 			</div>
 			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="rules">
 				<n-space vertical size="medium" text="left">
 					<n-form-item path="username">
-						<n-auto-complete v-model:value="formInline.username" :input-props="{ autocomplete: 'disabled' }"
-							:options="options" placeholder="帳號">
+						<n-auto-complete
+							v-model:value="formInline.username"
+							:input-props="{ autocomplete: 'disabled' }"
+							:options="options"
+							placeholder="帳號">
 							<template #prefix>
 								<i-carbon:user mr="2" color="#808695" />
 							</template>
 						</n-auto-complete>
 					</n-form-item>
 					<n-form-item path="password">
-						<n-input v-model:value="formInline.password" type="password" show-password-on="click"
+						<n-input
+							v-model:value="formInline.password"
+							type="password"
+							show-password-on="click"
 							placeholder="密碼">
 							<template #prefix>
 								<i-carbon:locked mr="2" color="#808695" />
 							</template>
 						</n-input>
 					</n-form-item>
-					<n-button type="primary" w="full" size="large">
-						Sign in
-					</n-button>
+					<n-button type="primary" w="full" size="large"> Sign in </n-button>
 				</n-space>
 			</n-form>
 		</n-space>
@@ -67,9 +69,8 @@ const options = computed(() => {
 		const prefix = usernameRef.value.split("@")[0]
 		return {
 			label: prefix + suffix,
-			value: prefix + suffix
+			value: prefix + suffix,
 		}
 	})
 })
-
 </script>

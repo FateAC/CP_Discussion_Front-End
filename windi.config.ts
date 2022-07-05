@@ -6,16 +6,8 @@ import LineClamp from "windicss/plugin/line-clamp"
 import SrollSnap from "windicss/plugin/scroll-snap"
 import Typography from "windicss/plugin/typography"
 
-
 export default defineConfig({
 	darkMode: "media",
 	attributify: true,
-	plugins: [
-		AspectRatio,
-		Filters,
-		Forms,
-		LineClamp,
-		SrollSnap,
-		Typography
-	]
+	plugins: [AspectRatio, Filters, Forms, LineClamp, SrollSnap, Typography],
 })
