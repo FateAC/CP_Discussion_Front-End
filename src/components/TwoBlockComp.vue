@@ -1,22 +1,7 @@
 <template>
-	<n-space
-		vertical
-		w="full"
-		h="full"
-		justify="start"
-		align="center"
-		:wrap-item="false"
-	>
+	<n-space vertical h="full" justify="start" align="center" :wrap-item="false">
 		<content-comp
-			:style="
-				'min-height: ' +
-				props.divideRate +
-				'%; ' +
-				'max-height: ' +
-				divideRate +
-				'%'
-			"
-		>
+			:style="'min-height: ' + props.divideRate + '%; ' + 'max-height: ' + divideRate + '%'">
 			<slot name="two-block-top" />
 		</content-comp>
 		<n-divider w="full" />

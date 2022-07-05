@@ -25,12 +25,12 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/homework",
 		name: "homework",
 		component: () => import("~/views/HomeworkView.vue"),
-	}
+	},
 ]
 
 const router: Router = createRouter({
 	history: createWebHistory(),
-	routes
+	routes,
 })
 
 export default router

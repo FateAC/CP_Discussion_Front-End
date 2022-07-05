@@ -21,7 +21,7 @@ export default defineConfig({
 				IconsResolver({
 					prefix: "i",
 				}),
-			]
+			],
 		}),
 		Icons({ autoInstall: true }),
 	],
