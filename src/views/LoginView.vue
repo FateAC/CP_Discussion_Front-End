@@ -11,11 +11,12 @@
 			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="rules">
 				<n-space vertical size="medium" text="left">
 					<n-form-item path="username">
-						<n-input v-model:value="formInline.username" placeholder="帳號">
+						<n-auto-complete v-model:value="formInline.username" :input-props="{ autocomplete: 'disabled' }"
+							:options="options" placeholder="帳號">
 							<template #prefix>
 								<i-carbon:user mr="2" color="#808695" />
 							</template>
-						</n-input>
+						</n-auto-complete>
 					</n-form-item>
 					<n-form-item path="password">
 						<n-input v-model:value="formInline.password" type="password" show-password-on="click"
@@ -35,16 +36,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue"
+import { reactive, ref, computed } from "vue"
 import {
 	NCard,
 	NSpace,
 	NForm,
 	NButton,
 	NFormItem,
+	NAutoComplete,
 	NInput,
 	NH1,
-	NText
+	NText,
 } from "naive-ui"
 // const isLogin = useLoginStore()
 
@@ -53,8 +55,21 @@ const rules = {
 	password: { required: true, message: "請輸入密碼", trigger: "blur" },
 }
 
+const usernameRef = ref("")
+
 const formInline = reactive({
-	username: "",
+	username: usernameRef,
 	password: "",
 })
+
+const options = computed(() => {
+	return ["@ntnu.edu.tw"].map((suffix) => {
+		const prefix = usernameRef.value.split("@")[0]
+		return {
+			label: prefix + suffix,
+			value: prefix + suffix
+		}
+	})
+})
+
 </script>
