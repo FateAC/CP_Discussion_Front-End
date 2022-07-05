@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue"
 import { NSpace, NDivider } from "naive-ui"
 
 interface Props {
