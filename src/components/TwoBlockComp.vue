@@ -1,6 +1,7 @@
 <template>
 	<n-space
 		vertical
+		w="full"
 		h="full"
 		justify="start"
 		align="center"
@@ -26,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue"
 import { NSpace, NDivider } from "naive-ui"
 
 interface Props {
