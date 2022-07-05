@@ -9,7 +9,11 @@
 		"lint": "eslint . --ext .jsx,.js,.ts,.tsx,.vue,.json"
 	},
 	"dependencies": {
+		"@apollo/client": "^3.6.9",
+		"@vue/apollo-composable": "4.0.0-alpha.18",
 		"@vueuse/core": "^8.7.5",
+		"graphql": "^16.5.0",
+		"graphql-tag": "^2.12.6",
 		"naive-ui": "^2.30.8",
 		"unplugin-icons": "^0.14.7",
 		"unplugin-vue-components": "^0.20.1",
