@@ -30,7 +30,7 @@
 							</template>
 						</n-input>
 					</n-form-item>
-					<n-button type="primary" w="full" size="large"> Sign in </n-button>
+					<n-button type="primary" w="full" size="large" @click="loginHandle()"> Sign in </n-button>
 				</n-space>
 			</n-form>
 		</n-space>
@@ -50,12 +50,24 @@ import {
 	NH1,
 	NText,
 } from "naive-ui"
+import gql from "graphql-tag"
+import { provideApolloClient, useMutation} from "@vue/apollo-composable";
+import apolloClient from "~/scripts/apolloClient"
+import { useRouter, useRoute } from "vue-router";
+
 // const isLogin = useLoginStore()
+interface Auth {
+	token: string,
+	state: boolean,
+}
 
 const rules = {
 	username: { required: true, message: "請輸入帳號", trigger: "blur" },
 	password: { required: true, message: "請輸入密碼", trigger: "blur" },
 }
+
+const router = useRouter()
+const route = useRoute()
 
 const usernameRef = ref("")
 
@@ -73,4 +85,35 @@ const options = computed(() => {
 		}
 	})
 })
+
+provideApolloClient(apolloClient)
+
+const { mutate:loginHandle,onDone } = useMutation<string>(gql`
+		mutation loginCheck ($email: String!, $password: String!) {
+			loginCheck(input: {
+				email: $email,
+				password: $password,
+			}) {
+				token
+				state
+			}
+		}
+`,
+() => ({
+	variables: {
+		email: formInline.username,
+		password: formInline.password,
+	},
+}))
+
+onDone(result => {
+	if(result?.data?.loginCheck?.state) {
+		alert("登入成功")
+		router.replace("/")
+	}
+	else {
+		alert("登入失敗")
+	}
+})
+
 </script>
