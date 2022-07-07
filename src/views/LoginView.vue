@@ -30,7 +30,9 @@
 							</template>
 						</n-input>
 					</n-form-item>
-					<n-button type="primary" w="full" size="large" @click="loginHandle()"> Sign in </n-button>
+					<n-button type="primary" w="full" size="large" @click="loginHandle()">
+						Sign in
+					</n-button>
 				</n-space>
 			</n-form>
 		</n-space>
@@ -49,16 +51,18 @@ import {
 	NInput,
 	NH1,
 	NText,
+	useMessage,
 } from "naive-ui"
 import gql from "graphql-tag"
-import { provideApolloClient, useMutation} from "@vue/apollo-composable";
-import apolloClient from "~/scripts/apolloClient"
-import { useRouter, useRoute } from "vue-router";
+import { useMutation } from "@vue/apollo-composable"
+import { useRouter } from "vue-router"
+
+const message = useMessage()
 
 // const isLogin = useLoginStore()
 interface Auth {
-	token: string,
-	state: boolean,
+	token: string
+	state: boolean
 }
 
 const rules = {
@@ -67,18 +71,15 @@ const rules = {
 }
 
 const router = useRouter()
-const route = useRoute()
-
-const usernameRef = ref("")
 
 const formInline = reactive({
-	username: usernameRef,
+	username: "",
 	password: "",
 })
 
 const options = computed(() => {
 	return ["@ntnu.edu.tw"].map((suffix) => {
-		const prefix = usernameRef.value.split("@")[0]
+		const prefix = formInline.username.split("@")[0]
 		return {
 			label: prefix + suffix,
 			value: prefix + suffix,
@@ -86,34 +87,32 @@ const options = computed(() => {
 	})
 })
 
-provideApolloClient(apolloClient)
-
-const { mutate:loginHandle,onDone } = useMutation<string>(gql`
-		mutation loginCheck ($email: String!, $password: String!) {
-			loginCheck(input: {
-				email: $email,
-				password: $password,
-			}) {
+const { mutate: loginHandle, onDone } = useMutation<string>(
+	gql`
+		mutation loginCheck($email: String!, $password: String!) {
+			loginCheck(input: { email: $email, password: $password }) {
 				token
 				state
 			}
 		}
-`,
-() => ({
-	variables: {
-		email: formInline.username,
-		password: formInline.password,
-	},
-}))
+	`,
+	() => ({
+		variables: {
+			email: formInline.username,
+			password: formInline.password,
+		},
+	})
+)
 
-onDone(result => {
-	if(result?.data?.loginCheck?.state) {
-		alert("登入成功")
+const auth = ref<Auth>()
+
+onDone((result) => {
+	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
+	if (auth.value.state) {
+		message.success("登入成功")
 		router.replace("/")
-	}
-	else {
-		alert("登入失敗")
+	} else {
+		message.error("登入失敗")
 	}
 })
-
 </script>
