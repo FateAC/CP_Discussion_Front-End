@@ -9,7 +9,7 @@ import Markdown, { code, link, meta } from "vite-plugin-md"
 import MDItAnchor from "markdown-it-anchor"
 import MDItPrism from "markdown-it-prism"
 import MDItEmoji from "markdown-it-emoji"
-import MDItKatex from "markdown-it-katex"
+import MDItMathjax from "markdown-it-mathjax3"
 import MDItIns from "markdown-it-ins"
 import MDItMark from "markdown-it-mark"
 import MDItFootnote from "markdown-it-footnote"
@@ -47,7 +47,7 @@ export default defineConfig({
 				md.use(MDItAnchor)
 				md.use(MDItPrism)
 				md.use(MDItEmoji)
-				md.use(MDItKatex)
+				md.use(MDItMathjax)
 				md.use(MDItIns)
 				md.use(MDItMark)
 				md.use(MDItFootnote)
