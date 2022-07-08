@@ -56,8 +56,10 @@ import {
 import gql from "graphql-tag"
 import { useMutation } from "@vue/apollo-composable"
 import { useRouter } from "vue-router"
+import { useStore } from "vuex"
 
 const message = useMessage()
+const store = useStore()
 
 // const isLogin = useLoginStore()
 interface Auth {
@@ -110,6 +112,7 @@ onDone((result) => {
 	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
 	if (auth.value.state) {
 		message.success("登入成功")
+		store.dispatch("user",formInline.username)		
 		router.replace("/")
 	} else {
 		message.error("登入失敗")
