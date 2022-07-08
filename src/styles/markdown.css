@@ -1,0 +1,51 @@
+.markdown-body {
+    a {
+        color: blue;
+    }
+
+    hr {
+        border-top: 1px solid gray;
+    }
+
+    blockquote {
+        background-color: #eeeeee;
+        border-left: 5px solid gray;
+        padding: 1px 0 1px 10px;
+        border-radius: 3px;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid;
+        padding: 5px;
+    }
+
+    .success {
+        margin: 10px auto;
+        padding: 1px 0 1px 10px;
+        background-color: #DFF0D8;
+    }
+
+    .info {
+        margin: 10px auto;
+        padding: 1px 0 1px 10px;
+        background-color: #D9EDF7;
+    }
+
+    .warning {
+        margin: 10px auto;
+        padding: 1px 0 1px 10px;
+        background-color: #FCF8E3;
+    }
+
+    .danger {
+        margin: 10px auto;
+        padding: 1px 0 1px 10px;
+        background-color: #F2DEDE;
+    }
+}
