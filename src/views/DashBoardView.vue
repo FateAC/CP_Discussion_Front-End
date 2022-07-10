@@ -1,34 +1,31 @@
 <template>
 	<sidebar-comp>
-		<n-h4>This is title</n-h4>
-		<n-ul>
-			<template v-for="i in 20" :key="i">
-				<n-li>
-					<a @click.prevent="change(i)" class="canclick">ITEM {{ i }}</a>
-				</n-li>
-			</template>
-		</n-ul>
+		<!-- For Admin -->
+		<n-h4 font="bold" @click.prevent="currentView = AdminMgmtHomeComp" cursor="pointer">
+			首頁
+		</n-h4>
+		<n-h4 font="bold" @click.prevent="currentView = MemberMgmtComp" cursor="pointer">
+			使用者管理
+		</n-h4>
+		<n-h4 font="bold" @click.prevent="currentView = HomeworkMgmtComp" cursor="pointer">
+			作業管理
+		</n-h4>
 	</sidebar-comp>
 	<content-comp>
 		<n-layout-content w="full" :native-scrollbar="false" content-style="padding:24px;">
-			<n-h1>{{ msg }}</n-h1>
+			<keep-alive>
+				<component :is="currentView"></component>
+			</keep-alive>
 		</n-layout-content>
 	</content-comp>
 </template>
 
 <script setup lang="ts">
-import { NLayoutContent, NH1, NH4, NLi, NUl } from "naive-ui"
-import { ref } from "vue"
+import { NLayoutContent, NH4 } from "naive-ui"
+import { shallowRef } from "vue"
+import AdminMgmtHomeComp from "~/components/adminMgmtComp/AdminMgmtHomeComp.vue"
+import MemberMgmtComp from "~/components/adminMgmtComp/MemberMgmtComp.vue"
+import HomeworkMgmtComp from "~/components/adminMgmtComp/HomeworkMgmtComp.vue"
 
-let msg = ref("Hello World")
-
-function change(i: number) {
-	msg.value = "ITEM " + i
-}
+const currentView = shallowRef(AdminMgmtHomeComp)
 </script>
-
-<style scoped>
-.canclick {
-	cursor: pointer;
-}
-</style>
