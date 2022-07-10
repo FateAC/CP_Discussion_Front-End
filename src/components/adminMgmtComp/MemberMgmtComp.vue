@@ -13,12 +13,12 @@
 					<th>基本操作</th>
 				</tr>
 			</thead>
-			<tbody>
-				<tr v-for="(item, index) in memberDatas" :key="index">
-					<td>{{ item.name }}</td>
-					<td>{{ item.email }}</td>
+			<tbody v-if="!loading && !error">
+				<tr v-for="(member, index) in members" :key="index">
+					<td>{{ member.username }}</td>
+					<td>{{ member.email }}</td>
 					<td>
-						<n-button v-if="item.isAdmin" strong secondary round type="success">
+						<n-button v-if="member.isAdmin" strong secondary round type="success">
 							True
 						</n-button>
 						<n-button v-else strong secondary round>False</n-button>
@@ -33,18 +33,30 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue"
 import { NH1, NTable, NButton } from "naive-ui"
+import { useQuery } from "@vue/apollo-composable"
+import gql from "graphql-tag"
 
-const memberDatas = [
-	{
-		name: "Test",
-		email: "test@ntnu.edu.tw",
-		isAdmin: true,
-	},
-	{
-		name: "TestTest",
-		email: "testtest@ntnu.edu.tw",
-		isAdmin: false,
-	},
-]
+interface Member {
+	username: string
+	email: string
+	isAdmin: boolean
+}
+
+const { result, loading, error, refetch } = useQuery<string>(
+	gql`
+		{
+			members {
+				username
+				email
+				isAdmin
+			}
+		}
+	`
+)
+
+const members = computed(() => {
+	return (JSON.parse(JSON.stringify(result.value))["members"] ?? []) as Member[]
+})
 </script>
