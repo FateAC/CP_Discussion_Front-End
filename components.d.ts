@@ -7,6 +7,7 @@ declare module "@vue/runtime-core" {
 	export interface GlobalComponents {
 		AdminMgmtHome: typeof import("./src/components/adminMgmt/AdminMgmtHome.vue")["default"]
 		AdminMgmtHomeComp: typeof import("./src/components/adminMgmtComp/AdminMgmtHomeComp.vue")["default"]
+		CommentComp: typeof import("./src/components/CommentComp.vue")["default"]
 		ContentComp: typeof import("./src/components/ContentComp.vue")["default"]
 		Footer: typeof import("./src/components/Footer.vue")["default"]
 		FooterComp: typeof import("./src/components/FooterComp.vue")["default"]
