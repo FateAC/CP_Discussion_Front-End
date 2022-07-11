@@ -1,7 +1,5 @@
 <template>
-	<n-layout>
-		This is the main page for user
-	</n-layout>
+	<n-layout> This is the main page for user </n-layout>
 </template>
 
 <script setup lang="ts">

@@ -112,7 +112,7 @@ onDone((result) => {
 	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
 	if (auth.value.state) {
 		message.success("登入成功")
-		store.dispatch("user",formInline.username)
+		store.dispatch("user", formInline.username)
 		router.replace("/")
 	} else {
 		message.error("登入失敗")

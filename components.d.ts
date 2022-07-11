@@ -26,6 +26,7 @@ declare module "@vue/runtime-core" {
 		RouterView: typeof import("vue-router")["RouterView"]
 		SidebarComp: typeof import("./src/components/SidebarComp.vue")["default"]
 		TwoBlockComp: typeof import("./src/components/TwoBlockComp.vue")["default"]
+		UserHomeComp: typeof import("./src/components/UserHomeComp.vue")["default"]
 	}
 }
 
