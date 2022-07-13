@@ -12,34 +12,41 @@
 				作業管理
 			</n-h4>
 		</template>
+		<!-- For User -->
 		<template v-else>
 			<template v-for="data in mockUserSiderBar" :key="data">
 				<n-h4
 					font="bold"
 					@click.prevent="fetchData(data.year, data.semester)"
 					cursor="pointer">
-					{{ data.year }} ({{ data.semester }})
+					{{ data.year }} - {{ data.semester }}
 				</n-h4>
 			</template>
 		</template>
 	</sidebar-comp>
 	<content-comp>
-		<n-layout-content w="full" :native-scrollbar="false" content-style="padding:24px;">
-			<keep-alive>
-				<component v-if="isAdmin" :is="currentView"></component>
-				<component v-else-if="course === null" :is="currentView"></component>
-				<component v-else :is="currentView">
-					<n-h4>{{ course.year }}</n-h4>
-					<n-h4>{{ course.semester }}</n-h4>
-				</component>
-			</keep-alive>
-		</n-layout-content>
+		<keep-alive>
+			<component v-if="isAdmin" :is="currentView"></component>
+			<component v-else-if="course === null" :is="currentView"></component>
+			<component v-else :is="currentView">
+				<div m="x-auto t-12" max-w="2xl">
+					<n-card>
+						<template #header>
+							<n-h2 font="bold">{{ course.year }} - {{ course.semester }}</n-h2>
+						</template>
+						<n-menu :options="menuOptions" font="bold" text="lg" />
+					</n-card>
+				</div>
+			</component>
+		</keep-alive>
 	</content-comp>
 </template>
 
 <script setup lang="ts">
-import { NLayoutContent, NH4 } from "naive-ui"
-import { shallowRef, ref } from "vue"
+import { shallowRef, ref, h } from "vue"
+import { RouterLink } from "vue-router"
+import { NH2, NH4, NCard, NMenu } from "naive-ui"
+import type { MenuOption } from "naive-ui"
 import AdminMgmtHomeComp from "~/components/adminMgmtComp/AdminMgmtHomeComp.vue"
 import MemberMgmtComp from "~/components/adminMgmtComp/MemberMgmtComp.vue"
 import HomeworkMgmtComp from "~/components/adminMgmtComp/HomeworkMgmtComp.vue"
@@ -53,20 +60,20 @@ interface CourseData {
 
 const mockUserSiderBar = [
 	{
-		year: 2022,
-		semester: "fall",
-	},
-	{
-		year: 2022,
-		semester: "spring",
+		year: 2021,
+		semester: "Spring",
 	},
 	{
 		year: 2021,
-		semester: "fall",
+		semester: "Fall",
 	},
 	{
-		year: 2021,
-		semester: "spring",
+		year: 2022,
+		semester: "Spring",
+	},
+	{
+		year: 2022,
+		semester: "Fall",
 	},
 ]
 
@@ -85,4 +92,18 @@ function fetchData(year: number, semester: string) {
 	currentView.value = ContentComp
 	return
 }
+
+const menuOptions: MenuOption[] = [
+	{
+		label: () =>
+			h(
+				RouterLink,
+				{
+					to: "homework",
+				},
+				{ default: () => "作業" }
+			),
+		key: "homework",
+	},
+]
 </script>
