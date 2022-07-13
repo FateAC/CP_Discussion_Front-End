@@ -112,6 +112,7 @@ onDone((result) => {
 	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
 	if (auth.value.state) {
 		message.success("登入成功")
+		window.localStorage.setItem("auth", auth.value.token)
 		store.dispatch("user", formInline.username)
 		router.replace("/")
 	} else {

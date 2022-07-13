@@ -10,6 +10,7 @@ const router = useRouter()
 const isLogin = computed(() => store.state.user != null)
 
 function logoutHandle() {
+	window.sessionStorage.clear()
 	store.dispatch("user", null)
 	router.replace("/login")
 	return

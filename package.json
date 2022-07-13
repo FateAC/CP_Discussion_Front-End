@@ -39,6 +39,7 @@
 		"vue": "^3.2.25",
 		"vue-router": "4",
 		"vuex": "^4.0.2",
+		"vuex-persistedstate": "^4.1.0",
 		"windicss": "^3.5.5"
 	},
 	"devDependencies": {
