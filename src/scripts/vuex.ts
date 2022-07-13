@@ -1,5 +1,9 @@
 import { createStore } from "vuex"
-import createPresistedState from "vuex-persistedstate"
+import VuexPersistence from 'vuex-persist'
+
+const vuexLocal = new VuexPersistence<RootState>({
+  storage: window.localStorage
+})
 
 const store = createStore({
 	state() {
@@ -22,7 +26,7 @@ const store = createStore({
 			state.user = user
 		},
 	},
-	plugins: [createPresistedState()],
+	plugins: [vuexLocal.plugin],
 })
 
 export default store
