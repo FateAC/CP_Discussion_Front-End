@@ -52,6 +52,7 @@ import {
 	NH1,
 	NText,
 	useMessage,
+	FormInst,
 } from "naive-ui"
 import gql from "graphql-tag"
 import { useMutation } from "@vue/apollo-composable"
@@ -74,6 +75,8 @@ const rules = {
 
 const router = useRouter()
 
+const formRef = ref<FormInst | null>(null)
+
 const formInline = reactive({
 	username: "",
 	password: "",
@@ -89,7 +92,7 @@ const options = computed(() => {
 	})
 })
 
-const { mutate: loginHandle, onDone } = useMutation<string>(
+const { mutate: loginQuery, onDone } = useMutation<string>(
 	gql`
 		mutation loginCheck($email: String!, $password: String!) {
 			loginCheck(input: { email: $email, password: $password }) {
@@ -105,6 +108,14 @@ const { mutate: loginHandle, onDone } = useMutation<string>(
 		},
 	})
 )
+
+function loginHandle() {
+	formRef.value?.validate((error) => {
+		if (!error) {
+			loginQuery()
+		}
+	})
+}
 
 const auth = ref<Auth>()
 
