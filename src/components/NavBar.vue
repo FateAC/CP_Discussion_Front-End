@@ -31,6 +31,7 @@ function logoutHandle() {
 			<n-space>
 				<router-link to="/">Home</router-link>
 				<router-link to="/about">About</router-link>
+				<router-link v-if="isLogin" to="/dashboard">Dashboard</router-link>
 			</n-space>
 			<n-space>
 				<template v-if="!isLogin">
