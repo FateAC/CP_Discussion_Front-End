@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
 		name: "homework",
 		component: () => import("~/views/HomeworkView.vue"),
 	},
+	{
+		path: "/resetpwd",
+		name: "resetpwd",
+		component: () => import("~/views/ResetPWDView.vue"),
+	},
 ]
 
 const router: Router = createRouter({

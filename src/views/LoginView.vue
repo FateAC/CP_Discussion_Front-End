@@ -24,7 +24,8 @@
 							v-model:value="formInline.password"
 							type="password"
 							show-password-on="click"
-							placeholder="密碼">
+							placeholder="密碼"
+							@keyup.enter="loginHandle()">
 							<template #prefix>
 								<i-carbon:locked mr="2" color="#808695" />
 							</template>
@@ -35,6 +36,11 @@
 					</n-button>
 				</n-space>
 			</n-form>
+			<n-space justify="end">
+				<div text="blue-500" font="bold">
+					<router-link to="/resetpwd">Reset Password</router-link>
+				</div>
+			</n-space>
 		</n-space>
 	</n-card>
 </template>
