@@ -1,7 +1,7 @@
 <template>
 	<sidebar-comp>
 		<!-- For Admin -->
-		<template v-if="isAdmin">
+		<div v-if="isAdmin">
 			<n-h4 font="bold" @click.prevent="currentView = AdminMgmtHomeComp" cursor="pointer">
 				首頁
 			</n-h4>
@@ -11,33 +11,35 @@
 			<n-h4 font="bold" @click.prevent="currentView = HomeworkMgmtComp" cursor="pointer">
 				作業管理
 			</n-h4>
-		</template>
+		</div>
 		<!-- For User -->
-		<template v-else>
-			<template v-for="data in mockUserSiderBar" :key="data">
+		<div v-else>
+			<div v-for="(data, index) in mockUserSiderBar" :key="index">
 				<n-h4
 					font="bold"
 					@click.prevent="fetchData(data.year, data.semester)"
 					cursor="pointer">
 					{{ data.year }} - {{ data.semester }}
 				</n-h4>
-			</template>
-		</template>
+			</div>
+		</div>
 	</sidebar-comp>
 	<content-comp>
 		<keep-alive>
-			<component v-if="isAdmin" :is="currentView"></component>
-			<component v-else-if="course === null" :is="currentView"></component>
-			<component v-else :is="currentView">
-				<div m="x-auto t-12" max-w="2xl">
-					<n-card>
-						<template #header>
-							<n-h2 font="bold">{{ course.year }} - {{ course.semester }}</n-h2>
-						</template>
-						<n-menu :options="menuOptions" font="bold" text="lg" />
-					</n-card>
-				</div>
-			</component>
+			<div>
+				<component v-if="isAdmin" :is="currentView" />
+				<component v-else-if="course === null" :is="currentView" />
+				<component v-else :is="currentView">
+					<div m="x-auto t-12" max-w="2xl">
+						<n-card>
+							<template #header>
+								<n-h2 font="bold">{{ course.year }} - {{ course.semester }}</n-h2>
+							</template>
+							<n-menu :options="menuOptions" font="bold" text="lg" />
+						</n-card>
+					</div>
+				</component>
+			</div>
 		</keep-alive>
 	</content-comp>
 </template>
