@@ -1,4 +1,5 @@
 import { createRouter, RouteRecordRaw, Router, createWebHistory } from "vue-router"
+import store from "~/scripts/vuex"
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -36,6 +37,25 @@ const routes: Array<RouteRecordRaw> = [
 const router: Router = createRouter({
 	history: createWebHistory(),
 	routes,
+})
+
+router.beforeEach((to, from, next) => {
+	if (store.state.user !== null) {
+		if (to.path === "/login" || to.path === "/resetpwd") {
+			router.push("/dashboard")
+		}
+		const adminPath = ["/dashboard"]
+		const userPath = ["/dashboard", "/homework"]
+	} else {
+		const tmpPath = ["/", "/about", "/login", "/resetpwd"]
+		if (!tmpPath.includes(to.path)) {
+			router.push("/login")
+		}
+	}
+	if (to.path === "/resetpwd" && from.path !== "/login") {
+		router.push("login")
+	}
+	next()
 })
 
 export default router

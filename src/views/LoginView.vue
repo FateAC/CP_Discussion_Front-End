@@ -131,13 +131,9 @@ onDone((result) => {
 		message.success("登入成功")
 		window.localStorage.setItem("token", auth.value.token)
 		store.dispatch("user", formInline.username)
-		router.replace("/")
+		router.replace("/dashboard")
 	} else {
 		message.error("登入失敗")
 	}
 })
-
-if (store.state.user !== null) {
-	router.replace("/dashboard")
-}
 </script>
