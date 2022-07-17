@@ -27,13 +27,11 @@
 	<content-comp v-if="!loading && !error">
 		<keep-alive>
 			<div>
-				<component v-if="isAdmin" :is="currentView" />
-				<component v-else-if="course === null" :is="currentView" />
-				<component v-else :is="currentView">
-					<div m="x-auto t-12" max-w="2xl">
+				<component :is="currentView">
+					<div v-if="!isAdmin" m="x-auto t-12" max-w="2xl">
 						<n-card>
 							<template #header>
-								<n-h2 font="bold">{{ course.year }} - {{ course.semester }}</n-h2>
+								<n-h2 font="bold">{{ course?.year }} - {{ course?.semester }}</n-h2>
 							</template>
 							<n-menu :options="menuOptions" font="bold" text="lg" />
 						</n-card>
@@ -45,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, h, computed } from "vue"
+import { shallowRef, ref, h, computed, watch } from "vue"
 import { RouterLink } from "vue-router"
 import { NH2, NH4, NCard, NMenu } from "naive-ui"
 import type { MenuOption } from "naive-ui"
@@ -89,12 +87,14 @@ const { result, loading, error, refetch } = useQuery<string>(
 	`
 )
 
-let currentView = shallowRef()
+const currentView = shallowRef()
 
-const isAdmin = computed(() => {
+const isAdmin = ref(false)
+
+watch(result, () => {
 	const tmp = (JSON.parse(JSON.stringify(result.value))["isAdmin"] ?? false) as boolean
-	currentView = tmp ? shallowRef(AdminMgmtHomeComp) : shallowRef(UserHomeComp)
-	return tmp
+	currentView.value = tmp ? AdminMgmtHomeComp : UserHomeComp
+	isAdmin.value = tmp
 })
 
 const course = ref<CourseData | null>(null)
