@@ -44,6 +44,8 @@
 	},
 	"devDependencies": {
 		"@iconify-json/carbon": "^1.1.6",
+		"@iconify-json/fad": "^1.1.2",
+		"@iconify-json/ic": "^1.1.7",
 		"@iconify-json/mdi": "^1.1.24",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",

@@ -16,6 +16,8 @@ declare module "@vue/runtime-core" {
 		HomeworkMgmtComp: typeof import("./src/components/adminMgmtComp/HomeworkMgmtComp.vue")["default"]
 		"ICarbon:locked": typeof import("~icons/carbon/locked")["default"]
 		"ICarbon:user": typeof import("~icons/carbon/user")["default"]
+		"IFad:random1dice": typeof import("~icons/fad/random1dice")["default"]
+		"IIc:outlineEmail": typeof import("~icons/ic/outline-email")["default"]
 		"IIc:twotoneMenuBook": typeof import("~icons/ic/twotone-menu-book")["default"]
 		"IMdi:abTesting": typeof import("~icons/mdi/ab-testing")["default"]
 		"IMdi:weatherNight": typeof import("~icons/mdi/weather-night")["default"]

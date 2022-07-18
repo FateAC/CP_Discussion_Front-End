@@ -101,7 +101,6 @@ watch(result, () => {
 })
 
 onMounted(() => {
-	console.log("refetch")
 	result.value = undefined
 	refetch()
 })

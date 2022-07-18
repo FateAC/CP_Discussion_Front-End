@@ -64,6 +64,7 @@ import gql from "graphql-tag"
 import { useMutation } from "@vue/apollo-composable"
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
+import emailOptions from "~/scripts/autoComplete"
 
 const message = useMessage()
 const store = useStore()
@@ -88,15 +89,11 @@ const formInline = reactive({
 	password: "",
 })
 
-const options = computed(() => {
-	return ["@ntnu.edu.tw"].map((suffix) => {
-		const prefix = formInline.username.split("@")[0]
-		return {
-			label: prefix + suffix,
-			value: prefix + suffix,
-		}
+const options = emailOptions(
+	computed(() => {
+		return formInline.username
 	})
-})
+)
 
 const { mutate: loginQuery, onDone } = useMutation<string>(
 	gql`

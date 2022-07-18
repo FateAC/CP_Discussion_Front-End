@@ -104,7 +104,6 @@ const modalComment = ref<Comment | null>(null)
 const showModal = (comment: Comment) => {
 	isShowModal.value = true
 	modalComment.value = comment
-	console.log(comment)
 }
 
 const bodyStyle = {
