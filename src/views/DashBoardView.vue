@@ -1,45 +1,49 @@
 <template>
-	<sidebar-comp v-if="!loading && !error">
-		<!-- For Admin -->
-		<div v-if="isAdmin">
-			<n-h4 font="bold" @click.prevent="currentView = AdminMgmtHomeComp" cursor="pointer">
-				首頁
-			</n-h4>
-			<n-h4 font="bold" @click.prevent="currentView = MemberMgmtComp" cursor="pointer">
-				使用者管理
-			</n-h4>
-			<n-h4 font="bold" @click.prevent="currentView = HomeworkMgmtComp" cursor="pointer">
-				作業管理
-			</n-h4>
-		</div>
-		<!-- For User -->
-		<div v-else>
-			<div v-for="(data, index) in mockUserSiderBar" :key="index">
-				<n-h4
-					font="bold"
-					@click.prevent="fetchData(data.year, data.semester)"
-					cursor="pointer">
-					{{ data.year }} - {{ data.semester }}
+	<div v-if="!loading && !error" display="flex" w="full">
+		<sidebar-comp>
+			<!-- For Admin -->
+			<div v-if="isAdmin">
+				<n-h4 font="bold" @click.prevent="currentView = AdminMgmtHomeComp" cursor="pointer">
+					首頁
+				</n-h4>
+				<n-h4 font="bold" @click.prevent="currentView = MemberMgmtComp" cursor="pointer">
+					使用者管理
+				</n-h4>
+				<n-h4 font="bold" @click.prevent="currentView = HomeworkMgmtComp" cursor="pointer">
+					作業管理
 				</n-h4>
 			</div>
-		</div>
-	</sidebar-comp>
-	<content-comp v-if="!loading && !error">
-		<keep-alive>
-			<div>
-				<component :is="currentView">
-					<div v-if="!isAdmin" m="x-auto t-12" max-w="2xl">
-						<n-card>
-							<template #header>
-								<n-h2 font="bold">{{ course?.year }} - {{ course?.semester }}</n-h2>
-							</template>
-							<n-menu :options="menuOptions" font="bold" text="lg" />
-						</n-card>
-					</div>
-				</component>
+			<!-- For User -->
+			<div v-else>
+				<div v-for="(data, index) in mockUserSiderBar" :key="index">
+					<n-h4
+						font="bold"
+						@click.prevent="fetchData(data.year, data.semester)"
+						cursor="pointer">
+						{{ data.year }} - {{ data.semester }}
+					</n-h4>
+				</div>
 			</div>
-		</keep-alive>
-	</content-comp>
+		</sidebar-comp>
+		<content-comp>
+			<keep-alive>
+				<div>
+					<component :is="currentView">
+						<div v-if="!isAdmin" m="x-auto t-12" max-w="2xl">
+							<n-card>
+								<template #header>
+									<n-h2 font="bold"
+										>{{ course?.year }} - {{ course?.semester }}</n-h2
+									>
+								</template>
+								<n-menu :options="menuOptions" font="bold" text="lg" />
+							</n-card>
+						</div>
+					</component>
+				</div>
+			</keep-alive>
+		</content-comp>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -92,10 +96,11 @@ const currentView = shallowRef()
 const isAdmin = ref(false)
 
 watch(result, () => {
-	const tmp = (JSON.parse(JSON.stringify(result.value))["isAdmin"] ?? false) as boolean
-	currentView.value = tmp ? AdminMgmtHomeComp : UserHomeComp
-	isAdmin.value = tmp
+	isAdmin.value = (JSON.parse(JSON.stringify(result.value))["isAdmin"] ?? false) as boolean
+	currentView.value = isAdmin.value ? AdminMgmtHomeComp : UserHomeComp
 })
+
+refetch()
 
 const course = ref<CourseData | null>(null)
 

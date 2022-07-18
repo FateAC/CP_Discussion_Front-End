@@ -2,6 +2,7 @@
 	<n-layout-sider
 		:native-scrollbar="false"
 		bordered
+		h="full"
 		width="288px"
 		content-style="padding: 24px; text-align=center;">
 		<slot></slot>
