@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, h, computed, watch } from "vue"
+import { shallowRef, ref, h, watch, onMounted } from "vue"
 import { RouterLink } from "vue-router"
 import { NH2, NH4, NCard, NMenu } from "naive-ui"
 import type { MenuOption } from "naive-ui"
@@ -93,14 +93,18 @@ const { result, loading, error, refetch } = useQuery<string>(
 
 const currentView = shallowRef()
 
-const isAdmin = ref(false)
+const isAdmin = ref<boolean | undefined>(undefined)
 
 watch(result, () => {
-	isAdmin.value = (JSON.parse(JSON.stringify(result.value))["isAdmin"] ?? false) as boolean
-	currentView.value = isAdmin.value ? AdminMgmtHomeComp : UserHomeComp
+	isAdmin.value = (JSON.parse(JSON.stringify(result?.value ?? ""))["isAdmin"] ?? false) as boolean
+	currentView.value = isAdmin?.value ? AdminMgmtHomeComp : UserHomeComp
 })
 
-refetch()
+onMounted(() => {
+	console.log("refetch")
+	result.value = undefined
+	refetch()
+})
 
 const course = ref<CourseData | null>(null)
 
