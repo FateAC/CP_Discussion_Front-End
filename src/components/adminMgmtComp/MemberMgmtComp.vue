@@ -43,9 +43,15 @@
 						<n-form-item label="課程" path="courses">
 							<n-dynamic-input
 								v-model:value="createMemberFormInline.courses"
-								placeholder="課程" />
+								:on-create="onCreateCourse">
+								<template #default="{ value }">
+									<n-input v-model:value="value.name" type="text" />
+								</template>
+							</n-dynamic-input>
 						</n-form-item>
-						<n-button type="primary" w="full">新增</n-button>
+						<n-button type="primary" w="full" @click="createMenberHandle">
+							新增
+						</n-button>
 					</n-space>
 				</n-form>
 			</n-card>
@@ -73,7 +79,6 @@
 					</td>
 					<td>
 						<n-space justify="center">
-							<n-button round type="info"> 重設密碼 </n-button>
 							<n-button round type="error"> 刪除帳戶 </n-button>
 						</n-space>
 					</td>
@@ -99,10 +104,12 @@ import {
 	NInput,
 	NSwitch,
 	NDynamicInput,
+	useMessage,
 } from "naive-ui"
-import { useQuery } from "@vue/apollo-composable"
+import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 import emailOptions from "~/scripts/autoComplete"
+import bcrypt from "bcryptjs"
 
 interface Member {
 	username: string
@@ -136,6 +143,10 @@ const createMemberFormInline = reactive({
 	courses: ref([]),
 })
 
+const onCreateCourse = () => {
+	return { name: "" }
+}
+
 const createMemberRules = {
 	email: { required: true, message: "請輸入信箱", trigger: "blur" },
 	password: { required: true, message: "請輸入密碼", trigger: "blur" },
@@ -154,4 +165,64 @@ const randPWD = () => {
 		createMemberFormInline.password += tmp[Math.floor(Math.random() * tmp.length)]
 	}
 }
+
+const { mutate: createMemberMutation, onDone } = useMutation<string>(
+	gql`
+		mutation createMember(
+			$email: String!
+			$password: String!
+			$isAdmin: Boolean!
+			$username: String!
+			$nickname: String!
+			$avatarPath: String!
+			$courses: [NewCourse!]!
+		) {
+			createMember(
+				input: {
+					email: $email
+					password: $password
+					isAdmin: $isAdmin
+					username: $username
+					nickname: $nickname
+					avatarPath: $avatarPath
+					courses: $courses
+				}
+			) {
+				username
+			}
+		}
+	`,
+	() => ({
+		variables: {
+			email: createMemberFormInline.email,
+			password: bcrypt.hashSync(createMemberFormInline.password, bcrypt.genSaltSync(15)),
+			isAdmin: createMemberFormInline.isAdmin,
+			username: createMemberFormInline.email.split("@")[0],
+			nickname: createMemberFormInline.email.split("@")[0],
+			avatarPath: "",
+			courses: createMemberFormInline.courses,
+		},
+	})
+)
+
+const createMenberHandle = () => {
+	createMemberFormRef.value?.validate((error) => {
+		if (!error) {
+			console.log(createMemberFormInline.courses)
+			createMemberMutation()
+		}
+	})
+}
+
+const message = useMessage()
+
+onDone((result) => {
+	const username = JSON.parse(JSON.stringify(result.data))["createMember"]["username"]
+	if (username) {
+		createMemberModel.value = false
+		message.success("新增成功")
+	} else {
+		message.success("新增失敗")
+	}
+})
 </script>
