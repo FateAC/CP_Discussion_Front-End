@@ -32,6 +32,16 @@ const routes: Array<RouteRecordRaw> = [
 		name: "resetpwd",
 		component: () => import("~/views/ResetPWDView.vue"),
 	},
+	{
+		path: "/404",
+		name: "notfound",
+		component: () => import("~/views/NotFoundView.vue"),
+	},
+	// must be the last one
+	{
+		path: "/:pathMatch(.*)*",
+		redirect: "/404",
+	},
 ]
 
 const router: Router = createRouter({
