@@ -1,22 +1,3 @@
-<script setup lang="ts">
-import { NLayoutHeader, NSpace, NSwitch } from "naive-ui"
-import { isDark } from "~/scripts/useDarks"
-import { useRouter } from "vue-router"
-import { useStore } from "vuex"
-import { computed } from "vue"
-
-const store = useStore()
-const router = useRouter()
-const isLogin = computed(() => store.state.user != null)
-
-function logoutHandle() {
-	window.sessionStorage.clear()
-	store.dispatch("user", null)
-	router.replace("/login")
-	return
-}
-</script>
-
 <template>
 	<n-layout-header h="16" p="x-6" bordered>
 		<n-space
@@ -40,7 +21,7 @@ function logoutHandle() {
 				<template v-else>
 					<a href="#" @click="logoutHandle()">Logout</a>
 				</template>
-				<n-switch v-model:value="isDark" size="large">
+				<n-switch v-model:value="isDark" @update:value="changeDarkmode" size="large">
 					<template #checked-icon>
 						<i-mdi:weather-night />
 					</template>
@@ -52,3 +33,26 @@ function logoutHandle() {
 		</n-space>
 	</n-layout-header>
 </template>
+
+<script setup lang="ts">
+import { NLayoutHeader, NSpace, NSwitch } from "naive-ui"
+import { isDark } from "~/scripts/useDarks"
+import { useRouter } from "vue-router"
+import { useStore } from "vuex"
+import { computed } from "vue"
+
+const store = useStore()
+const router = useRouter()
+const isLogin = computed(() => store.state.user != null)
+
+const logoutHandle = () => {
+	window.sessionStorage.clear()
+	store.dispatch("user", null)
+	router.replace("/login")
+	return
+}
+
+const changeDarkmode = () => {
+	store.dispatch("favorDarkmode", isDark.value)
+}
+</script>

@@ -13,8 +13,17 @@ import {
 import NavBar from "./components/NavBar.vue"
 import FooterComp from "./components/FooterComp.vue"
 import { isDark } from "~/scripts/useDarks"
+import { useStore } from "vuex"
 
-isDark.value = useOsTheme().value === "dark"
+const store = useStore()
+
+if (store.state.favorDarkmode == null) {
+	isDark.value = useOsTheme().value === "dark"
+	store.dispatch("favorDarkmode", isDark.value)
+} else {
+	isDark.value = store.state.favorDarkmode
+}
+
 const theme = computed(() => (isDark.value ? darkTheme : null))
 </script>
 
