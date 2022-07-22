@@ -49,7 +49,7 @@
 								</template>
 							</n-dynamic-input>
 						</n-form-item>
-						<n-button type="primary" w="full" @click="createMenberHandle">
+						<n-button type="primary" w="full" @click="createMemberHandle">
 							新增
 						</n-button>
 					</n-space>
@@ -79,7 +79,9 @@
 					</td>
 					<td>
 						<n-space justify="center">
-							<n-button round type="error"> 刪除帳戶 </n-button>
+							<n-button round type="error" @click="removeMemberHandle(member._id)">
+								刪除帳戶
+							</n-button>
 						</n-space>
 					</td>
 				</tr>
@@ -112,6 +114,7 @@ import emailOptions from "~/scripts/autoComplete"
 import bcrypt from "bcryptjs"
 
 interface Member {
+	_id: string
 	username: string
 	email: string
 	isAdmin: boolean
@@ -121,6 +124,7 @@ const { result, loading, error, refetch } = useQuery<string>(
 	gql`
 		{
 			members {
+				_id
 				username
 				email
 				isAdmin
@@ -166,7 +170,7 @@ const randPWD = () => {
 	}
 }
 
-const { mutate: createMemberMutation, onDone } = useMutation<string>(
+const { mutate: createMemberMutation, onDone: createMemberOnDone } = useMutation<string>(
 	gql`
 		mutation createMember(
 			$email: String!
@@ -191,32 +195,29 @@ const { mutate: createMemberMutation, onDone } = useMutation<string>(
 				username
 			}
 		}
-	`,
-	() => ({
-		variables: {
-			email: createMemberFormInline.email,
-			password: bcrypt.hashSync(createMemberFormInline.password, bcrypt.genSaltSync(15)),
-			isAdmin: createMemberFormInline.isAdmin,
-			username: createMemberFormInline.email.split("@")[0],
-			nickname: createMemberFormInline.email.split("@")[0],
-			avatarPath: "",
-			courses: createMemberFormInline.courses,
-		},
-	})
+	`
 )
 
-const createMenberHandle = () => {
+const createMemberHandle = () => {
 	createMemberFormRef.value?.validate((error) => {
 		if (!error) {
 			console.log(createMemberFormInline.courses)
-			createMemberMutation()
+			createMemberMutation({
+				email: createMemberFormInline.email,
+				password: bcrypt.hashSync(createMemberFormInline.password, bcrypt.genSaltSync(15)),
+				isAdmin: createMemberFormInline.isAdmin,
+				username: createMemberFormInline.email.split("@")[0],
+				nickname: createMemberFormInline.email.split("@")[0],
+				avatarPath: "",
+				courses: createMemberFormInline.courses,
+			})
 		}
 	})
 }
 
 const message = useMessage()
 
-onDone((result) => {
+createMemberOnDone((result) => {
 	const username = JSON.parse(JSON.stringify(result.data))["createMember"]["username"]
 	if (username) {
 		createMemberModel.value = false
@@ -224,5 +225,32 @@ onDone((result) => {
 	} else {
 		message.success("新增失敗")
 	}
+	refetch()
+})
+
+const { mutate: removeMemberMutation, onDone: removeMemberOnDone } = useMutation<string>(
+	gql`
+		mutation removeMember($inputID: String!) {
+			removeMember(id: $inputID) {
+				username
+				email
+			}
+		}
+	`
+)
+
+const removeMemberHandle = (id: string) => {
+	removeMemberMutation({ inputID: id })
+}
+
+removeMemberOnDone((result) => {
+	const username = JSON.parse(JSON.stringify(result.data))["removeMember"]["username"]
+	const email = JSON.parse(JSON.stringify(result.data))["removeMember"]["email"]
+	if (username) {
+		message.success("刪除" + username + "(" + email + ") 成功")
+	} else {
+		message.success("刪除失敗")
+	}
+	refetch()
 })
 </script>
