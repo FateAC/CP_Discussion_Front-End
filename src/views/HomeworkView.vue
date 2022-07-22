@@ -17,7 +17,13 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue"
 import { NH2 } from "naive-ui"
 import "~/styles/markdown.css"
 import Homework from "~/assets/homeworks/111-1/HW01.md"
+import lineNum from "~/scripts/codeblockLineNum"
+
+onMounted(() => {
+	lineNum()
+})
 </script>
