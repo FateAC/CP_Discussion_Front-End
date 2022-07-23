@@ -7,7 +7,8 @@
 
 <script setup lang="ts">
 import { NCard, NH1, NH3 } from "naive-ui"
-import { ref } from "vue"
+import { useStore } from "vuex"
 
-const adminName = ref("Admin")
+const store = useStore()
+const adminName = store.state.username
 </script>

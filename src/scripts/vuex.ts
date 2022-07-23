@@ -8,29 +8,29 @@ const vuexLocal = new VuexPersistence<RootState>({
 const store = createStore({
 	state() {
 		return {
-			user: null,
+			username: null,
 			favorDarkmode: null,
 		}
 	},
 	getters: {
-		user: (state) => {
-			return state.user
+		username: (state) => {
+			return state.username
 		},
 		favorDarkmode: (state) => {
 			return state.favorDarkmode
 		},
 	},
 	actions: {
-		user(context, user) {
-			context.commit("user", user)
+		username(context, username) {
+			context.commit("username", username)
 		},
 		favorDarkmode(context, favorDarkmode) {
 			context.commit("favorDarkMode", favorDarkmode)
 		},
 	},
 	mutations: {
-		async user(state, user) {
-			state.user = user
+		async username(state, username) {
+			state.username = username
 		},
 		async favorDarkMode(state, favorDarkmode) {
 			state.favorDarkmode = favorDarkmode

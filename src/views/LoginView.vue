@@ -127,7 +127,7 @@ onDone((result) => {
 	if (auth.value.state) {
 		message.success("登入成功")
 		window.localStorage.setItem("token", auth.value.token)
-		store.dispatch("user", formInline.username)
+		store.dispatch("username", formInline.username.split("@")[0])
 		router.replace("/dashboard")
 	} else {
 		message.error("登入失敗")

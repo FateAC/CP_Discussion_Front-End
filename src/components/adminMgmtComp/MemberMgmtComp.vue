@@ -79,9 +79,24 @@
 					</td>
 					<td>
 						<n-space justify="center">
-							<n-button round type="error" @click="removeMemberHandle(member._id)">
-								刪除帳戶
-							</n-button>
+							<n-popconfirm
+								v-if="store.state.username !== member.username"
+								positive-text="確認刪除"
+								negative-text="考慮一下"
+								@positive-click="removeMemberHandle(member._id)">
+								<template #trigger>
+									<n-button round type="error"> 刪除帳戶 </n-button>
+								</template>
+								真的要刪除 {{ member.email }} 嗎? (此操作不可逆呦!!)
+							</n-popconfirm>
+							<n-tooltip v-else>
+								<template #trigger>
+									<n-button disabled round type="error" tag="div">
+										刪除帳戶
+									</n-button>
+								</template>
+								為什麼會想要刪除自己呢??
+							</n-tooltip>
 						</n-space>
 					</td>
 				</tr>
@@ -107,11 +122,16 @@ import {
 	NSwitch,
 	NDynamicInput,
 	useMessage,
+	NTooltip,
+	NPopconfirm,
 } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 import emailOptions from "~/scripts/autoComplete"
 import bcrypt from "bcryptjs"
+import { useStore } from "vuex"
+
+const store = useStore()
 
 interface Member {
 	_id: string

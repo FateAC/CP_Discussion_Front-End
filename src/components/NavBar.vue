@@ -43,11 +43,11 @@ import { computed } from "vue"
 
 const store = useStore()
 const router = useRouter()
-const isLogin = computed(() => store.state.user != null)
+const isLogin = computed(() => store.state.username != null)
 
 const logoutHandle = () => {
 	window.sessionStorage.clear()
-	store.dispatch("user", null)
+	store.dispatch("username", null)
 	router.replace("/login")
 	return
 }

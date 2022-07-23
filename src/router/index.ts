@@ -50,7 +50,7 @@ const router: Router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-	if (store.state.user !== null) {
+	if (store.state.username !== null) {
 		if (to.path === "/login" || to.path === "/resetpwd") {
 			router.push("/dashboard")
 		}
