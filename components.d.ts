@@ -14,6 +14,7 @@ declare module "@vue/runtime-core" {
 		"ICarbon:user": typeof import("~icons/carbon/user")["default"]
 		"IFad:random1dice": typeof import("~icons/fad/random1dice")["default"]
 		"IIc:outlineEmail": typeof import("~icons/ic/outline-email")["default"]
+		"IIc:twotoneUploadFile": typeof import("~icons/ic/twotone-upload-file")["default"]
 		"IMdi:weatherNight": typeof import("~icons/mdi/weather-night")["default"]
 		"IMdi:weatherSunny": typeof import("~icons/mdi/weather-sunny")["default"]
 		MemberMgmtComp: typeof import("./src/components/adminMgmtComp/MemberMgmtComp.vue")["default"]
@@ -23,6 +24,8 @@ declare module "@vue/runtime-core" {
 		SidebarComp: typeof import("./src/components/SidebarComp.vue")["default"]
 		TwoBlockComp: typeof import("./src/components/TwoBlockComp.vue")["default"]
 		UserHomeComp: typeof import("./src/components/UserHomeComp.vue")["default"]
+		UserInfoComp: typeof import("./src/components/profileComp/userInfoComp.vue")["default"]
+		UserResetPWDComp: typeof import("./src/components/profileComp/userResetPWDComp.vue")["default"]
 	}
 }
 
