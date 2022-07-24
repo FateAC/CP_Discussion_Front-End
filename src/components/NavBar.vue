@@ -15,12 +15,14 @@
 				<router-link v-if="isLogin" to="/dashboard">Dashboard</router-link>
 			</n-space>
 			<n-space>
-				<template v-if="!isLogin">
-					<router-link to="/login">Login</router-link>
-				</template>
-				<template v-else>
-					<a href="#" @click="logoutHandle()">Logout</a>
-				</template>
+				<router-link v-if="!isLogin" to="/login">Login</router-link>
+				<n-dropdown
+					v-else
+					trigger="click"
+					:options="avatarOptions"
+					@select="avatarHandleSelect">
+					<n-avatar round src="empty.png" fallback-src="src/assets/avatar.png" />
+				</n-dropdown>
 				<n-switch v-model:value="isDark" @update:value="changeDarkmode" size="large">
 					<template #checked-icon>
 						<i-mdi:weather-night />
@@ -35,11 +37,13 @@
 </template>
 
 <script setup lang="ts">
-import { NLayoutHeader, NSpace, NSwitch } from "naive-ui"
+import { NLayoutHeader, NSpace, NSwitch, NAvatar, NDropdown, NIcon } from "naive-ui"
 import { isDark } from "~/scripts/useDarks"
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
-import { computed } from "vue"
+import { computed, h } from "vue"
+import type { Component } from "vue"
+import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
 
 const store = useStore()
 const router = useRouter()
@@ -54,5 +58,34 @@ const logoutHandle = () => {
 
 const changeDarkmode = () => {
 	store.dispatch("favorDarkmode", isDark.value)
+}
+
+const renderIcon = (icon: Component) => {
+	return () => {
+		return h(NIcon, null, {
+			default: () => h(icon),
+		})
+	}
+}
+
+const avatarOptions = [
+	{
+		label: "Profile",
+		key: "profile",
+		icon: renderIcon(profileIcon),
+	},
+	{
+		label: "Logout",
+		key: "logout",
+		icon: renderIcon(logoutIcon),
+	},
+]
+
+const avatarHandleSelect = (key: string | number) => {
+	if (key == "profile") {
+		router.replace("/profile")
+	} else if (key == "logout") {
+		logoutHandle()
+	}
 }
 </script>

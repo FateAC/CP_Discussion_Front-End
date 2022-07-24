@@ -28,6 +28,11 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import("~/views/HomeworkView.vue"),
 	},
 	{
+		path: "/profile",
+		name: "profile",
+		component: () => import("~/views/ProfileView.vue"),
+	},
+	{
 		path: "/resetpwd",
 		name: "resetpwd",
 		component: () => import("~/views/ResetPWDView.vue"),
@@ -54,16 +59,13 @@ router.beforeEach((to, from, next) => {
 		if (to.path === "/login" || to.path === "/resetpwd") {
 			router.push("/dashboard")
 		}
-		const adminPath = ["/dashboard"]
-		const userPath = ["/dashboard", "/homework"]
+		const adminPath = ["/dashboard", "/profile"]
+		const userPath = ["/dashboard", "/profile", "/homework"]
 	} else {
 		const tmpPath = ["/", "/about", "/login", "/resetpwd"]
 		if (!tmpPath.includes(to.path)) {
 			router.push("/login")
 		}
-	}
-	if (to.path === "/resetpwd" && from.path !== "/login") {
-		router.push("login")
 	}
 	next()
 })
