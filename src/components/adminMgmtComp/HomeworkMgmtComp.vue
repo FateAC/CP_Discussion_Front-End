@@ -7,6 +7,11 @@
 		<n-modal v-model:show="createHomeworkModal">
 			<n-card style="width: 600px" title="新增作業"> </n-card>
 		</n-modal>
+		<n-modal v-model:show="viewHomeworkModal">
+			<n-card style="width: 1000px">
+				<Homework></Homework>
+			</n-card>
+		</n-modal>
 		<n-collapse v-for="[course, posts] in MockHomework" :key="course">
 			<n-collapse-item :title="course">
 				<n-table :single-line="false" m="t-4" text="center">
@@ -17,15 +22,28 @@
 							<th>Author</th>
 							<th>PostTime</th>
 							<th>LastModify</th>
+							<th>操作</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr v-for="(post, index) in posts" :key="index">
 							<td>{{ index + 1 }}</td>
-							<td>{{ post.title }}</td>
+							<td>
+								<n-button
+									quaternary
+									type="success"
+									@click="openPostView(course, index)">
+									{{ post.title }}
+								</n-button>
+							</td>
 							<td>{{ post.username }}</td>
 							<td>{{ post.createTime }}</td>
 							<td>{{ post.lastModifyTime }}</td>
+							<td>
+								<n-button type="error" @click="deletePost(course, index)">
+									{{ post.title }}
+								</n-button>
+							</td>
 						</tr>
 					</tbody>
 				</n-table>
@@ -37,6 +55,8 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { NH1, NTable, NButton, NModal, NCard, NCollapse, NCollapseItem } from "naive-ui"
+
+import Homework from "~/assets/homeworks/111-1/HW01.md"
 
 interface Post {
 	year: string
@@ -66,8 +86,10 @@ interface Post {
 // this part will be change to query homework infomation in the future
 
 const createHomeworkModal = ref(false)
+const viewHomeworkModal = ref(false)
+const currentPost = ref("")
 
-let MockHomework = new Map()
+let MockHomework = ref(new Map())
 
 for (let i = 0; i < 10; ++i) {
 	let tmp: Post[] = []
@@ -86,6 +108,21 @@ for (let i = 0; i < 10; ++i) {
 			lastModifyTime: "2022-02-22",
 		})
 	}
-	MockHomework.set(courseName, tmp.slice())
+	MockHomework.value.set(courseName, tmp.slice())
+}
+
+function openPostView(course: string, index: number) {
+	currentPost.value = MockHomework.value.get(course)[index]
+	viewHomeworkModal.value = true
+}
+
+function deletePost(course: string, index: number) {
+	let postID = MockHomework.value.get(course)[index]._id
+	// something to mutate the db
+	MockHomework.value.get(course).splice(index, 1)
+	console.log(MockHomework.value.get(course))
+	if (MockHomework.value.get(course).length === 0) {
+		MockHomework.value.delete(course)
+	}
 }
 </script>
