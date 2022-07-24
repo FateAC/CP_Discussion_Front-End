@@ -1,5 +1,5 @@
 <template>
-	<n-layout-header h="16" p="x-6" bordered>
+	<n-layout-header v-if="!loading && !error" h="16" p="x-6" bordered>
 		<n-space
 			h="full"
 			max-w="7xl"
@@ -21,7 +21,7 @@
 					trigger="click"
 					:options="avatarOptions"
 					@select="avatarHandleSelect">
-					<n-avatar round src="empty.png" fallback-src="src/assets/avatar.png" />
+					<n-avatar round :src="avatarPath" fallback-src="src/assets/avatar.png" />
 				</n-dropdown>
 				<n-switch v-model:value="isDark" @update:value="changeDarkmode" size="large">
 					<template #checked-icon>
@@ -44,6 +44,8 @@ import { useStore } from "vuex"
 import { computed, h } from "vue"
 import type { Component } from "vue"
 import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
+import { useQuery } from "@vue/apollo-composable"
+import gql from "graphql-tag"
 
 const store = useStore()
 const router = useRouter()
@@ -59,6 +61,20 @@ const logoutHandle = () => {
 const changeDarkmode = () => {
 	store.dispatch("favorDarkmode", isDark.value)
 }
+
+const { result, loading, error, refetch } = useQuery<string>(
+	gql`
+		{
+			selfInfo {
+				avatarPath
+			}
+		}
+	`
+)
+
+const avatarPath = computed(() => {
+	return (JSON.parse(JSON.stringify(result.value))["selfInfo"]["avatarPath"] ?? "") as string
+})
 
 const renderIcon = (icon: Component) => {
 	return () => {
