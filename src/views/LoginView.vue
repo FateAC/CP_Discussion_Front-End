@@ -95,7 +95,7 @@ const options = emailOptions(
 	})
 )
 
-const { mutate: loginQuery, onDone } = useMutation<string>(
+const { mutate: loginQuery, onDone: loginOnDone } = useMutation<string>(
 	gql`
 		mutation loginCheck($email: String!, $password: String!) {
 			loginCheck(input: { email: $email, password: $password }) {
@@ -103,26 +103,23 @@ const { mutate: loginQuery, onDone } = useMutation<string>(
 				state
 			}
 		}
-	`,
-	() => ({
-		variables: {
-			email: formInline.username,
-			password: formInline.password,
-		},
-	})
+	`
 )
 
 function loginHandle() {
 	formRef.value?.validate((error) => {
 		if (!error) {
-			loginQuery()
+			loginQuery({
+				email: formInline.username,
+				password: formInline.password,
+			})
 		}
 	})
 }
 
 const auth = ref<Auth>()
 
-onDone((result) => {
+loginOnDone((result) => {
 	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
 	if (auth.value.state) {
 		message.success("登入成功")
