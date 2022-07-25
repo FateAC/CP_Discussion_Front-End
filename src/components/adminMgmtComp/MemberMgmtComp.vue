@@ -196,21 +196,10 @@ const { mutate: createMemberMutation, onDone: createMemberOnDone } = useMutation
 			$email: String!
 			$password: String!
 			$isAdmin: Boolean!
-			$username: String!
-			$nickname: String!
-			$avatarPath: String!
 			$courses: [NewCourse!]!
 		) {
 			createMember(
-				input: {
-					email: $email
-					password: $password
-					isAdmin: $isAdmin
-					username: $username
-					nickname: $nickname
-					avatarPath: $avatarPath
-					courses: $courses
-				}
+				input: { email: $email, password: $password, isAdmin: $isAdmin, courses: $courses }
 			) {
 				username
 			}
@@ -226,9 +215,6 @@ const createMemberHandle = () => {
 				email: createMemberFormInline.email,
 				password: bcrypt.hashSync(createMemberFormInline.password, bcrypt.genSaltSync(15)),
 				isAdmin: createMemberFormInline.isAdmin,
-				username: createMemberFormInline.email.split("@")[0],
-				nickname: createMemberFormInline.email.split("@")[0],
-				avatarPath: "",
 				courses: createMemberFormInline.courses,
 			})
 		}
