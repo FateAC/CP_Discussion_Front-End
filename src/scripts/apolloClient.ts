@@ -1,5 +1,6 @@
-import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client/core"
+import { ApolloClient, InMemoryCache } from "@apollo/client/core"
 import { ApolloLink } from "@apollo/client/link/core"
+import { createUploadLink } from "apollo-upload-client"
 
 const authLink = new ApolloLink((operation, forward) => {
 	// add the authorization to the headers
@@ -13,7 +14,7 @@ const authLink = new ApolloLink((operation, forward) => {
 })
 
 // HTTP connection to the API
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
 	// You should use an absolute URL here
 	uri: "http://localhost:8080/query",
 })
