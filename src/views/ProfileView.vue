@@ -32,16 +32,18 @@
 						<n-text text="2xl">User Info</n-text>
 						<n-form inline justify="between">
 							<n-form-item label="Username">
-								<n-input type="text" placeholder="username" :disabled="true" />
+								<n-input type="text" v-model:value="username" :disabled="true" />
 							</n-form-item>
 							<n-form-item label="Email">
-								<n-input type="text" placeholder="email" :disabled="true" />
+								<n-input type="text" v-model:value="email" :disabled="true" />
 							</n-form-item>
 							<n-form-item label="Nickname">
-								<n-input type="text" placeholder="nickname" />
+								<n-input type="text" v-model:value="nickname" />
 							</n-form-item>
 						</n-form>
-						<n-button w="full" type="success" round>更新</n-button>
+						<n-button w="full" type="success" round @click="userInfoUpdate">
+							更新
+						</n-button>
 					</n-space>
 				</n-tab-pane>
 				<n-tab-pane name="重設密碼">
@@ -84,27 +86,39 @@ import gql from "graphql-tag"
 
 const store = useStore()
 
+interface Member {
+	username: string
+	nickname: string
+	email: string
+	avatarPath: string
+}
+
 const { result, loading, error, refetch } = useQuery<string>(
 	gql`
 		{
 			selfInfo {
+				username
+				nickname
+				email
 				avatarPath
 			}
 		}
 	`
 )
 
-interface Member {
-	avatarPath: string
-}
-
 const selfInfo = ref<Member | undefined>(undefined)
+const username = ref("")
+const nickname = ref("")
+const email = ref("")
 const avatarPath = ref("")
 
 watch(result, () => {
 	if (store.state.username) {
 		selfInfo.value = (JSON.parse(JSON.stringify(result?.value ?? ""))["selfInfo"] ??
 			undefined) as Member
+		username.value = selfInfo.value?.username ?? ""
+		nickname.value = selfInfo.value?.nickname ?? ""
+		email.value = selfInfo.value?.email ?? ""
 		avatarPath.value = selfInfo.value?.avatarPath ?? ""
 	}
 })
@@ -144,4 +158,20 @@ uploadAvatarOnDone(() => {
 const avatarHandleClick = () => {
 	avatarUpload.value?.submit()
 }
+
+const { mutate: userInfoUpdateMutation, onDone: userInfoUpdateOnDone } = useMutation<string>(
+	gql`
+		mutation updateMemberNickname($inNickname: String) {
+			updateMemberNickname(nickname: $inNickname)
+		}
+	`
+)
+
+const userInfoUpdate = () => {
+	userInfoUpdateMutation({ inNickname: nickname.value })
+}
+
+userInfoUpdateOnDone(() => {
+	refetch()
+})
 </script>
