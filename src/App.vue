@@ -34,7 +34,7 @@ const theme = computed(() => (isDark.value ? darkTheme : null))
 				<n-notification-provider>
 					<n-message-provider>
 						<n-layout position="absolute">
-							<NavBar />
+							<NavBar :key="$route.fullPath" />
 							<n-layout has-sider position="absolute" style="top: 64px; bottom: 64px">
 								<router-view />
 							</n-layout>

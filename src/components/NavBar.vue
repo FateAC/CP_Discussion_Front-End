@@ -1,5 +1,5 @@
 <template>
-	<n-layout-header v-if="!loading && !error" h="16" p="x-6" bordered>
+	<n-layout-header h="16" p="x-6" bordered>
 		<n-space
 			h="full"
 			max-w="7xl"
@@ -17,11 +17,11 @@
 			<n-space>
 				<router-link v-if="!isLogin" to="/login">Login</router-link>
 				<n-dropdown
-					v-else
+					v-else-if="!loading && !error"
 					trigger="click"
 					:options="avatarOptions"
 					@select="avatarHandleSelect">
-					<n-avatar round :src="avatarPath" fallback-src="src/assets/avatar.png" />
+					<n-avatar :src="avatarPath" />
 				</n-dropdown>
 				<n-switch v-model:value="isDark" @update:value="changeDarkmode" size="large">
 					<template #checked-icon>
@@ -41,7 +41,7 @@ import { NLayoutHeader, NSpace, NSwitch, NAvatar, NDropdown, NIcon } from "naive
 import { isDark } from "~/scripts/useDarks"
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
-import { computed, h } from "vue"
+import { computed, h, watch, ref, onMounted } from "vue"
 import type { Component } from "vue"
 import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
 import { useQuery } from "@vue/apollo-composable"
@@ -72,8 +72,26 @@ const { result, loading, error, refetch } = useQuery<string>(
 	`
 )
 
-const avatarPath = computed(() => {
-	return (JSON.parse(JSON.stringify(result.value))["selfInfo"]["avatarPath"] ?? "") as string
+interface Member {
+	avatarPath: string
+}
+
+const selfInfo = ref<Member | undefined>(undefined)
+const avatarPath = ref("")
+
+watch(result, () => {
+	if (store.state.username) {
+		selfInfo.value = (JSON.parse(JSON.stringify(result?.value ?? ""))["selfInfo"] ??
+			undefined) as Member
+		avatarPath.value = selfInfo.value?.avatarPath
+			? selfInfo.value?.avatarPath
+			: "src/assets/avatar.png"
+	}
+})
+
+onMounted(() => {
+	result.value = undefined
+	refetch()
 })
 
 const renderIcon = (icon: Component) => {
