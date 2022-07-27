@@ -49,12 +49,20 @@
 				<n-tab-pane name="重設密碼">
 					<n-form>
 						<n-form-item label="新密碼">
-							<n-input type="password" show-password-on="click" />
+							<n-input
+								type="password"
+								v-model:value="newPWD"
+								show-password-on="click" />
 						</n-form-item>
 						<n-form-item label="確認密碼">
-							<n-input type="password" show-password-on="click" />
+							<n-input
+								type="password"
+								v-model:value="checkPWD"
+								show-password-on="click" />
 						</n-form-item>
-						<n-button w="full" type="success" round>重設</n-button>
+						<n-button w="full" type="success" round @click="resetPWDHandle">
+							重設
+						</n-button>
 					</n-form>
 				</n-tab-pane>
 			</n-tabs>
@@ -77,13 +85,16 @@ import {
 	NImage,
 	NSpace,
 	UploadCustomRequestOptions,
+	useMessage,
 } from "naive-ui"
 import type { UploadInst, UploadFileInfo } from "naive-ui"
 import { watch, ref, onMounted } from "vue"
 import { useStore } from "vuex"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
+import bcrypt from "bcryptjs"
 
+const message = useMessage()
 const store = useStore()
 
 interface Member {
@@ -119,7 +130,7 @@ watch(result, () => {
 		username.value = selfInfo.value?.username ?? ""
 		nickname.value = selfInfo.value?.nickname ?? ""
 		email.value = selfInfo.value?.email ?? ""
-		avatarPath.value = selfInfo.value?.avatarPath ?? ""
+		avatarPath.value = (selfInfo.value?.avatarPath ?? "") + "?t=" + new Date().getTime()
 	}
 })
 
@@ -150,8 +161,17 @@ const avatarCustomRequest = ({ file }: UploadCustomRequestOptions) => {
 	}
 }
 
-uploadAvatarOnDone(() => {
+uploadAvatarOnDone((resultMutation) => {
+	if (
+		(JSON.parse(JSON.stringify(resultMutation?.data ?? ""))["updateMemberAvatar"] ??
+			false) as boolean
+	) {
+		message.success("Avatar 重設成功")
+	} else {
+		message.error("Avatar 重設失敗")
+	}
 	avatarUpload.value?.clear()
+	result.value = undefined
 	refetch()
 })
 
@@ -171,7 +191,48 @@ const userInfoUpdate = () => {
 	userInfoUpdateMutation({ inNickname: nickname.value })
 }
 
-userInfoUpdateOnDone(() => {
+userInfoUpdateOnDone((resultMutation) => {
+	if (
+		(JSON.parse(JSON.stringify(resultMutation?.data ?? ""))["updateMemberNickname"] ??
+			false) as boolean
+	) {
+		message.success("Nickname 重設成功")
+	} else {
+		message.error("Nickname 重設失敗")
+	}
+	result.value = undefined
+	refetch()
+})
+
+const newPWD = ref("")
+const checkPWD = ref("")
+
+const { mutate: resetPWDMutation, onDone: resetPWDOnDone } = useMutation<string>(
+	gql`
+		mutation resetPWD($pwd: String!) {
+			resetPWD(password: $pwd)
+		}
+	`
+)
+
+const resetPWDHandle = () => {
+	if (newPWD.value == checkPWD.value) {
+		resetPWDMutation({
+			pwd: bcrypt.hashSync(checkPWD.value, bcrypt.genSaltSync(15)),
+			// pwd: checkPWD.value,
+		})
+	} else {
+		message.error("請確認密碼是否一致")
+	}
+}
+
+resetPWDOnDone((resultMutation) => {
+	if ((JSON.parse(JSON.stringify(resultMutation?.data ?? ""))["resetPWD"] ?? false) as boolean) {
+		message.success("密碼重設成功")
+	} else {
+		message.error("密碼重設失敗")
+	}
+	result.value = undefined
 	refetch()
 })
 </script>
