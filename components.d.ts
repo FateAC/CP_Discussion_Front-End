@@ -19,6 +19,7 @@ declare module "@vue/runtime-core" {
 		"IMdi:weatherSunny": typeof import("~icons/mdi/weather-sunny")["default"]
 		MemberMgmtComp: typeof import("./src/components/adminMgmtComp/MemberMgmtComp.vue")["default"]
 		NavBar: typeof import("./src/components/NavBar.vue")["default"]
+		ResetPasswordComp: typeof import("./src/components/ResetPasswordComp.vue")["default"]
 		RouterLink: typeof import("vue-router")["RouterLink"]
 		RouterView: typeof import("vue-router")["RouterView"]
 		SidebarComp: typeof import("./src/components/SidebarComp.vue")["default"]

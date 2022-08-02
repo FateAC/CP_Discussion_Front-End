@@ -21,7 +21,7 @@
 					trigger="click"
 					:options="avatarOptions"
 					@select="avatarHandleSelect">
-					<n-avatar :src="avatarPath" />
+					<n-avatar :src="avatarPath" round object-fit="cover" />
 				</n-dropdown>
 				<n-switch v-model:value="isDark" @update:value="changeDarkmode" size="large">
 					<template #checked-icon>
@@ -90,8 +90,10 @@ watch(result, () => {
 })
 
 onMounted(() => {
-	result.value = undefined
-	refetch()
+	if (store.state.username) {
+		result.value = undefined
+		refetch()
+	}
 })
 
 const renderIcon = (icon: Component) => {
