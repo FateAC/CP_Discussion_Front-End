@@ -5,7 +5,39 @@
 			<n-button type="success" @click="createHomeworkModal = true">新增作業</n-button>
 		</div>
 		<n-modal v-model:show="createHomeworkModal">
-			<n-card style="width: 600px" title="新增作業"> </n-card>
+			<n-card style="width: 600px" title="新增作業">
+				<n-form
+					ref="createPostFormRef"
+					:model="createPostFormInline"
+					:rules="createPostRule">
+					<n-space vertical size="medium" text="left">
+						<n-form-item path="title" label="Title">
+							<n-input
+								v-model:value="createPostFormInline.title"
+								placeholder="Title" />
+						</n-form-item>
+						<n-form-item path="year" label="Year">
+							<n-input-number
+								v-model:value="createPostFormInline.year"
+								:show-button="false"
+								w="full" />
+						</n-form-item>
+						<n-form-item path="semester" label="Semester">
+							<n-select
+								v-model:value="createPostFormInline.semester"
+								placeholder="Semester"
+								:options="postSemesterOption" />
+						</n-form-item>
+						<n-form-item path="tag" label="Tags">
+							<n-dynamic-tags v-model:value="createPostFormInline.tags" />
+						</n-form-item>
+						<n-form-item path="mdPath" label="Post"> </n-form-item>
+						<n-button type="primary" w="full" @click="createPostHandle">
+							Post
+						</n-button>
+					</n-space>
+				</n-form>
+			</n-card>
 		</n-modal>
 		<n-modal v-model:show="viewHomeworkModal">
 			<n-card style="width: 1000px">
@@ -22,6 +54,7 @@
 							<th>Author</th>
 							<th>PostTime</th>
 							<th>LastModify</th>
+							<th>Tags</th>
 							<th>操作</th>
 						</tr>
 					</thead>
@@ -40,8 +73,13 @@
 							<td>{{ post.createTime }}</td>
 							<td>{{ post.lastModifyTime }}</td>
 							<td>
+								<n-tag v-for="tag in post.tags" :key="tag">
+									{{ tag }}
+								</n-tag>
+							</td>
+							<td>
 								<n-button type="error" @click="deletePost(course, index)">
-									{{ post.title }}
+									Delete
 								</n-button>
 							</td>
 						</tr>
@@ -53,8 +91,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { NH1, NTable, NButton, NModal, NCard, NCollapse, NCollapseItem } from "naive-ui"
+import { ref, reactive } from "vue"
+import {
+	NInput,
+	NTag,
+	NH1,
+	NTable,
+	NButton,
+	NModal,
+	NCard,
+	NCollapse,
+	NCollapseItem,
+	NForm,
+	NFormItem,
+	NInputNumber,
+	NSelect,
+	FormInst,
+	NDynamicTags,
+	NSpace,
+	NUpload,
+} from "naive-ui"
 
 import Homework from "~/assets/homeworks/111-1/HW01.md"
 
@@ -88,6 +144,33 @@ interface Post {
 const createHomeworkModal = ref(false)
 const viewHomeworkModal = ref(false)
 const currentPost = ref("")
+
+const createPostFormRef = ref<FormInst | null>(null)
+
+const createPostFormInline = reactive({
+	title: "",
+	year: 2022,
+	semester: 1,
+	mdPath: "",
+	tags: ref([]),
+})
+
+const createPostRule = {
+	title: { required: true, message: "Please enter the post title", trigger: "blur" },
+	year: { type: "number", required: true, message: "Please enter the year ", trigger: "blur" },
+	mdPath: { required: true, message: "Please upload the post file", trigger: "blur" },
+}
+
+const postSemesterOption = [
+	{
+		label: "Spring",
+		value: 1,
+	},
+	{
+		label: "Fall",
+		value: 0,
+	},
+]
 
 let MockHomework = ref(new Map())
 
@@ -124,5 +207,13 @@ function deletePost(course: string, index: number) {
 	if (MockHomework.value.get(course).length === 0) {
 		MockHomework.value.delete(course)
 	}
+}
+
+function createPostHandle() {
+	createPostFormRef.value?.validate((error) => {
+		if (!error) {
+			console.log(createPostFormInline)
+		}
+	})
 }
 </script>
