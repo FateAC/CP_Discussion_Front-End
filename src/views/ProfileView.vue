@@ -13,6 +13,17 @@
 								:src="avatarPath"
 								preview-disabled />
 						</div>
+						<n-popconfirm
+							v-if="avatarPath != ''"
+							placement="bottom"
+							negative-text="先不要"
+							positive-text="確認刪除"
+							@positive-click="removeMemberAvatar">
+							<template #trigger>
+								<n-button w="full" round type="error"> 刪除檔案 </n-button>
+							</template>
+							確定要刪除 Avatar 嗎? 此操作不可逆呦!
+						</n-popconfirm>
 						<n-upload
 							ref="avatarUpload"
 							list-type="image"
@@ -70,6 +81,7 @@ import {
 	NSpace,
 	UploadCustomRequestOptions,
 	useMessage,
+	NPopconfirm,
 } from "naive-ui"
 import type { UploadInst, UploadFileInfo } from "naive-ui"
 import { watch, ref, onMounted } from "vue"
@@ -81,6 +93,7 @@ const message = useMessage()
 const store = useStore()
 
 interface Member {
+	_id: string
 	username: string
 	nickname: string
 	email: string
@@ -91,6 +104,7 @@ const { result, loading, error, refetch } = useQuery<string>(
 	gql`
 		{
 			selfInfo {
+				_id
 				username
 				nickname
 				email
@@ -101,6 +115,7 @@ const { result, loading, error, refetch } = useQuery<string>(
 )
 
 const selfInfo = ref<Member | undefined>(undefined)
+const userID = ref("")
 const username = ref("")
 const nickname = ref("")
 const email = ref("")
@@ -110,14 +125,42 @@ watch(result, () => {
 	if (store.state.username) {
 		selfInfo.value = (JSON.parse(JSON.stringify(result?.value ?? ""))["selfInfo"] ??
 			undefined) as Member
+		userID.value = selfInfo.value?._id ?? ""
 		username.value = selfInfo.value?.username ?? ""
 		nickname.value = selfInfo.value?.nickname ?? ""
 		email.value = selfInfo.value?.email ?? ""
-		avatarPath.value = (selfInfo.value?.avatarPath ?? "") + "?t=" + new Date().getTime()
+		avatarPath.value = selfInfo.value?.avatarPath ?? ""
+		if (avatarPath.value != "") avatarPath.value += "?t=" + new Date().getTime()
 	}
 })
 
 onMounted(() => {
+	result.value = undefined
+	refetch()
+})
+
+const { mutate: removeMemberAvatarMutation, onDone: removeMemberAvatarOnDone } =
+	useMutation<string>(
+		gql`
+			mutation removeMemberAvatar($inID: String!) {
+				removeMemberAvatar(id: $inID)
+			}
+		`
+	)
+
+const removeMemberAvatar = () => {
+	removeMemberAvatarMutation({ inID: userID.value })
+}
+
+removeMemberAvatarOnDone((resultMutation) => {
+	if (
+		(JSON.parse(JSON.stringify(resultMutation?.data ?? ""))["removeMemberAvatar"] ??
+			false) as boolean
+	) {
+		message.success("Avatar 刪除成功")
+	} else {
+		message.error("Avatar 刪除失敗")
+	}
 	result.value = undefined
 	refetch()
 })
@@ -164,7 +207,7 @@ const avatarHandleClick = () => {
 
 const { mutate: userInfoUpdateMutation, onDone: userInfoUpdateOnDone } = useMutation<string>(
 	gql`
-		mutation updateMemberNickname($inNickname: String) {
+		mutation updateMemberNickname($inNickname: String!) {
 			updateMemberNickname(nickname: $inNickname)
 		}
 	`
