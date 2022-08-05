@@ -1,5 +1,5 @@
 <template>
-	<n-layout-header h="16" p="x-6" bordered>
+	<n-layout-header h="16" p="x-8" bordered>
 		<n-space
 			h="full"
 			max-w="7xl"
@@ -10,18 +10,19 @@
 			font="bold"
 			text="xl">
 			<n-space>
-				<router-link to="/">Home</router-link>
-				<router-link to="/about">About</router-link>
-				<router-link v-if="isLogin" to="/dashboard">Dashboard</router-link>
+				<span class="whitespace-nowrap text-xl md:my-0 px-4 py-1.5">CP Discussion</span>
+				<router-link to="/" class="lg:my-0 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">Home</router-link>
+				<router-link to="/about" class="lg:my-0 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">About</router-link>
+				<router-link v-if="isLogin" to="/dashboard" class="lg:my-0 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">Dashboard</router-link>
 			</n-space>
 			<n-space>
-				<router-link v-if="!isLogin" to="/login">Login</router-link>
+				<router-link v-if="!isLogin" to="/login" class="lg:my-1 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">Login</router-link>
 				<n-dropdown
 					v-else-if="!loading && !error"
 					trigger="click"
 					:options="avatarOptions"
 					@select="avatarHandleSelect">
-					<n-avatar :src="avatarPath" round object-fit="cover" />
+					<n-avatar class="cursor-pointer" :src="avatarPath" round object-fit="cover" />
 				</n-dropdown>
 				<n-switch v-model:value="isDark" @update:value="changeDarkmode" size="large">
 					<template #checked-icon>
@@ -125,3 +126,9 @@ const avatarHandleSelect = (key: string | number) => {
 	}
 }
 </script>
+
+<style>
+a.router-link-exact-active {
+	color: #ffd000;
+}
+</style>

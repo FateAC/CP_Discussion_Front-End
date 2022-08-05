@@ -37,7 +37,7 @@ const users = [
 	<n-layout-content>
 		<n-grid m="x-auto t-12" max-w="5xl" x-gap="12" y-gap="12" :cols="3">
 			<n-gi v-for="user in users" :key="user.id">
-				<n-card>
+				<n-card class="bg-transparent bg-gradient-to-r from-viceGreen/65 to-viceBlue/65 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40">
 					<template #header>
 						<n-avatar round size="large" :src="'src/assets/images/' + user.imgName" />
 					</template>

@@ -1,5 +1,5 @@
 <template>
-	<n-card w="md" max-w="md" m="x-auto y-12" p="y-4">
+	<n-card class="bg-transparent bg-gradient-to-r from-viceGreen/50 to-viceBlue/50 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40" w="md" max-w="md" m="x-auto y-12" p="y-4">
 		<n-space vertical justify="space-around" size="large">
 			<div text="center" m="y-8">
 				<n-h1>

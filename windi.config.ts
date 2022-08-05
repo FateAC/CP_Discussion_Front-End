@@ -10,4 +10,12 @@ export default defineConfig({
 	darkMode: "media",
 	attributify: true,
 	plugins: [AspectRatio, Filters, Forms, LineClamp, SrollSnap, Typography],
+	theme: {
+		extend: {
+			colors: {
+				viceGreen: '#34d399',
+				viceBlue: '#3b82f6',
+			},
+		},
+	},
 })
