@@ -11,12 +11,30 @@
 			text="xl">
 			<n-space>
 				<span class="whitespace-nowrap text-xl md:my-0 px-4 py-1.5">CP Discussion</span>
-				<router-link to="/" class="lg:my-0 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">Home</router-link>
-				<router-link to="/about" class="lg:my-0 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">About</router-link>
-				<router-link v-if="isLogin" to="/dashboard" class="lg:my-0 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">Dashboard</router-link>
+				<router-link
+					to="/"
+					class="lg:my-0 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					>Home</router-link
+				>
+				<router-link
+					to="/about"
+					class="lg:my-0 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					>About</router-link
+				>
+				<router-link
+					v-if="isLogin"
+					to="/dashboard"
+					class="lg:my-0 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					>Dashboard</router-link
+				>
 			</n-space>
 			<n-space>
-				<router-link v-if="!isLogin" to="/login" class="lg:my-1 px-4 py-1.5  md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40">Login</router-link>
+				<router-link
+					v-if="!isLogin"
+					to="/login"
+					class="lg:my-1 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					>Login</router-link
+				>
 				<n-dropdown
 					v-else-if="!loading && !error"
 					trigger="click"

@@ -1,5 +1,8 @@
 <template>
-	<n-card class="bg-transparent bg-gradient-to-r from-viceGreen/50 to-viceBlue/50 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40" m="x-auto t-12 b-auto" max-w="xl">
+	<n-card
+		class="bg-transparent bg-gradient-to-r from-viceGreen/50 to-viceBlue/50 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
+		m="x-auto t-12 b-auto"
+		max-w="xl">
 		<template #header>
 			<n-h1>重設密碼</n-h1>
 		</template>

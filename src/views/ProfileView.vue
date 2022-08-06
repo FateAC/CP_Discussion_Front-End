@@ -1,6 +1,9 @@
 <template>
 	<n-layout-content>
-		<n-card m="x-auto t-8" w="2xl"  class="bg-transparent bg-gradient-to-r from-viceGreen/65 to-viceBlue/65 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40">
+		<n-card
+			m="x-auto t-8"
+			w="2xl"
+			class="bg-transparent bg-gradient-to-r from-viceGreen/65 to-viceBlue/65 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40">
 			<n-tabs>
 				<n-tab-pane name="個人資訊">
 					<n-space vertical>

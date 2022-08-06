@@ -48,13 +48,13 @@ const theme = computed(() => (isDark.value ? darkTheme : null))
 </template>
 
 <style>
-.dark .n-layout{
+.dark .n-layout {
 	background: linear-gradient(#2d2d2d, #060606);
 }
-.dark .n-layout-header{
+.dark .n-layout-header {
 	background-color: #2d2d2d;
 }
-.dark .n-layout-footer{
+.dark .n-layout-footer {
 	background-color: #060606;
 }
 </style>

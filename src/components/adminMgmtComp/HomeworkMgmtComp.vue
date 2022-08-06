@@ -38,15 +38,13 @@
 								v-model:file-list="MDfiles"
 								:default-upload="false"
 								@before-upload="beforeMdUpload"
-								:max=1>
+								:max="1">
 								<n-button> Select Markdown </n-button>
 							</n-upload>
 						</n-form-item>
 					</n-space>
 				</n-form>
-				<n-button type="primary" w="full" @click="createPostClickHandle">
-					Post
-				</n-button>
+				<n-button type="primary" w="full" @click="createPostClickHandle"> Post </n-button>
 			</n-card>
 		</n-modal>
 		<n-modal v-model:show="viewHomeworkModal">
@@ -79,7 +77,7 @@
 									{{ post.title }}
 								</n-button>
 							</td>
-							<td>{{ post.poster}}</td>
+							<td>{{ post.poster }}</td>
 							<td>{{ post.createTime }}</td>
 							<td>{{ post.lastModifyTime }}</td>
 							<td>
@@ -109,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive , computed, watch, onMounted } from "vue"
+import { ref, reactive, computed, watch, onMounted } from "vue"
 import {
 	NInput,
 	NTag,
@@ -153,7 +151,6 @@ interface Post {
 	lastModifyTime: string
 }
 
-
 const createHomeworkModal = ref(false)
 const viewHomeworkModal = ref(false)
 const currentPost = ref("")
@@ -170,7 +167,7 @@ const createPostFormInline = reactive({
 })
 
 const createPostRule = {
-	title: { required: true, message: "Please enter the post title", trigger: "blur"},
+	title: { required: true, message: "Please enter the post title", trigger: "blur" },
 	year: { type: "number", required: true, message: "Please enter the year ", trigger: "blur" },
 	//mdPath: { type:"text", required: true, message: "Please upload the post file", trigger: "blur" },
 }
@@ -186,10 +183,7 @@ const postSemesterOption = [
 	},
 ]
 
-
-async function beforeMdUpload (data: {
-	file: UploadFileInfo
-	fileList: UploadFileInfo[]}) {
+async function beforeMdUpload(data: { file: UploadFileInfo; fileList: UploadFileInfo[] }) {
 	if (data.file.file?.name.endsWith(".md") === false) {
 		message.error("Only .md file is allowed.")
 		return false
@@ -197,79 +191,72 @@ async function beforeMdUpload (data: {
 	return true
 }
 
-
-const { result, loading ,error , refetch } = useQuery<string> (
+const { result, loading, error, refetch } = useQuery<string>(
 	gql`
 		{
 			posts {
-			_id
-			poster
-			title
-			year
-			semester
-			tags
-			mdPath
-			createTime
-			lastModifyTime
-		  }	
+				_id
+				poster
+				title
+				year
+				semester
+				tags
+				mdPath
+				createTime
+				lastModifyTime
+			}
 		}
 	`
 )
 
-const { mutate: uploadPostMutate , onDone: uploadPostDone } = useMutation<string>(
+const { mutate: uploadPostMutate, onDone: uploadPostDone } = useMutation<string>(
 	gql`
-		mutation addPost($input : NewPost!) {
-				addPost(
-					input : $input
-				){
-					_id
-					poster
-					title
-					year
-					semester
-					tags
-					mdPath
-					createTime
-					lastModifyTime
-				}
+		mutation addPost($input: NewPost!) {
+			addPost(input: $input) {
+				_id
+				poster
+				title
+				year
+				semester
+				tags
+				mdPath
+				createTime
+				lastModifyTime
+			}
 		}
 	`
 )
 
-const { mutate: deletePostMutate, onDone: deletePostDone} = useMutation<string>(
+const { mutate: deletePostMutate, onDone: deletePostDone } = useMutation<string>(
 	gql`
-		mutation removePost($input : String!) {
-				removePost(
-					id: $input
-				){
-
-					_id
-					poster
-					title
-					year
-					semester
-					tags
-					mdPath
-					createTime
-					lastModifyTime
-				}
+		mutation removePost($input: String!) {
+			removePost(id: $input) {
+				_id
+				poster
+				title
+				year
+				semester
+				tags
+				mdPath
+				createTime
+				lastModifyTime
+			}
 		}
 	`
 )
 
 const dbHomework = ref(new Map())
-	
 
-watch(result , () => {
-	if(!result.value){
+watch(result, () => {
+	if (!result.value) {
 		return
 	}
 	let hws = (JSON.parse(JSON.stringify(result.value))["posts"] ?? []) as Post[]
 	dbHomework.value = new Map()
 	hws.forEach((hw) => {
-		const course = `${hw["year"]}-${hw["semester"]+1}`
-		if(dbHomework.value.has(course) === false) {
-			dbHomework.value.set(course,[])
+		const course = `${hw["year"]}-${hw["semester"] + 1}`
+		if (dbHomework.value.has(course) === false) {
+			dbHomework.value.set(course, [])
 		}
 		let current = dbHomework.value.get(course)
 		current?.push({
@@ -282,24 +269,24 @@ watch(result , () => {
 			tags: hw["tags"],
 			mdPath: hw["mdPath"],
 			createTime: hw["createTime"],
-			lastModifyTime: hw["lastModifyTime"]
+			lastModifyTime: hw["lastModifyTime"],
 		} as Post)
 	})
 })
 
-function openPostView(course: string, index: number) { // WIP
+function openPostView(course: string, index: number) {
+	// WIP
 	//viewHomeworkModal.value = true
 }
 
-function deletePostHandle(id : string ){
+function deletePostHandle(id: string) {
 	deletePostMutate({
-		input : id
+		input: id,
 	})
-} 
-
+}
 
 function createPostClickHandle() {
-	if(MDfiles.value.length !== 1) {
+	if (MDfiles.value.length !== 1) {
 		message.error("Please upload a markdown file.")
 		return
 	}
@@ -308,43 +295,40 @@ function createPostClickHandle() {
 			let file = MDfiles.value[0]
 			uploadPostMutate({
 				input: {
-					mdFile : file.file,
-					poster : store.state.username,
-					title : createPostFormInline.title,
-					year : createPostFormInline.year,
-					semester : createPostFormInline.semester,
-					tags : createPostFormInline.tags
-				}					
+					mdFile: file.file,
+					poster: store.state.username,
+					title: createPostFormInline.title,
+					year: createPostFormInline.year,
+					semester: createPostFormInline.semester,
+					tags: createPostFormInline.tags,
+				},
 			})
 		}
 	})
 }
 
 uploadPostDone((resultMutation) => {
-	if(JSON.parse(JSON.stringify(resultMutation.data))["addPost"]){
+	if (JSON.parse(JSON.stringify(resultMutation.data))["addPost"]) {
 		message.success("Post success")
-		createHomeworkModal.value = false		
+		createHomeworkModal.value = false
 		refetch()
-	}
-	else {
+	} else {
 		message.error("Post failed")
 	}
 })
-		
+
 deletePostDone((resultMutation) => {
-	if(JSON.parse(JSON.stringify(resultMutation.data))["removePost"]){
+	if (JSON.parse(JSON.stringify(resultMutation.data))["removePost"]) {
 		message.success("Delete success")
-		createHomeworkModal.value = false		
+		createHomeworkModal.value = false
 		refetch()
-	}
-	else {
+	} else {
 		message.error("Delete failed")
 	}
 })
 
-onMounted(()=> {
+onMounted(() => {
 	result.value = undefined
 	refetch()
 })
-
 </script>

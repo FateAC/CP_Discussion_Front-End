@@ -7,14 +7,14 @@ import SrollSnap from "windicss/plugin/scroll-snap"
 import Typography from "windicss/plugin/typography"
 
 export default defineConfig({
-	darkMode: "media",
+	darkMode: "class",
 	attributify: true,
 	plugins: [AspectRatio, Filters, Forms, LineClamp, SrollSnap, Typography],
 	theme: {
 		extend: {
 			colors: {
-				viceGreen: '#34d399',
-				viceBlue: '#3b82f6',
+				viceGreen: "#34d399",
+				viceBlue: "#3b82f6",
 			},
 		},
 	},
