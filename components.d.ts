@@ -17,6 +17,7 @@ declare module "@vue/runtime-core" {
 		"IIc:twotoneUploadFile": typeof import("~icons/ic/twotone-upload-file")["default"]
 		"IMdi:weatherNight": typeof import("~icons/mdi/weather-night")["default"]
 		"IMdi:weatherSunny": typeof import("~icons/mdi/weather-sunny")["default"]
+		MarkdownComp: typeof import("./src/components/MarkdownComp.vue")["default"]
 		MemberMgmtComp: typeof import("./src/components/adminMgmtComp/MemberMgmtComp.vue")["default"]
 		NavBar: typeof import("./src/components/NavBar.vue")["default"]
 		ResetPasswordComp: typeof import("./src/components/ResetPasswordComp.vue")["default"]
