@@ -72,10 +72,50 @@
 					<td>{{ member.username }}</td>
 					<td>{{ member.email }}</td>
 					<td>
-						<n-button v-if="member.isAdmin" strong secondary round type="success">
-							True
-						</n-button>
-						<n-button v-else strong secondary round>False</n-button>
+						<n-space justify="center">
+							<n-popconfirm
+								v-if="
+									member.isAdmin === true &&
+									store.state.username !== member.username
+								"
+								positive-text="確認"
+								negative-text="否定"
+								@positive-click="updateMemberIsAdminHandle(member._id)">
+								<template #trigger>
+									<n-switch v-model:value="member.isAdmin" size="large">
+										<template #checked> Admin </template>
+										<template #unchecked> User </template>
+									</n-switch>
+								</template>
+								確定將 {{ member.email }} 降級成 User 嗎?
+							</n-popconfirm>
+							<n-tooltip
+								v-else-if="
+									member.isAdmin === true &&
+									store.state.username === member.username
+								">
+								<template #trigger>
+									<n-switch disabled v-model:value="member.isAdmin" size="large">
+										<template #checked> Admin </template>
+										<template #unchecked> User </template>
+									</n-switch>
+								</template>
+								為什麼會想要把自己降級成 User 呢??
+							</n-tooltip>
+							<n-popconfirm
+								v-else
+								positive-text="確認"
+								negative-text="否定"
+								@positive-click="updateMemberIsAdminHandle(member._id)">
+								<template #trigger>
+									<n-switch v-model:value="member.isAdmin" size="large">
+										<template #checked> Admin </template>
+										<template #unchecked> User </template>
+									</n-switch>
+								</template>
+								確定將 {{ member.email }} 提升成 Admin 嗎?
+							</n-popconfirm>
+						</n-space>
 					</td>
 					<td>
 						<n-space justify="center">
@@ -256,6 +296,30 @@ removeMemberOnDone((result) => {
 		message.success("刪除" + username + "(" + email + ") 成功")
 	} else {
 		message.success("刪除失敗")
+	}
+	refetch()
+})
+
+const { mutate: updateMemberIsAdminMutation, onDone: updateMemberIsAdminOnDone } =
+	useMutation<string>(
+		gql`
+			mutation updateMemberIsAdmin($inputID: String!) {
+				updateMemberIsAdmin(id: $inputID)
+			}
+		`
+	)
+
+const updateMemberIsAdminHandle = (id: string) => {
+	updateMemberIsAdminMutation({ inputID: id })
+}
+
+updateMemberIsAdminOnDone((result) => {
+	if (
+		(JSON.parse(JSON.stringify(result?.data ?? ""))["updateMemberIsAdmin"] ?? false) as boolean
+	) {
+		message.success("更變權限成功")
+	} else {
+		message.success("更變失敗")
 	}
 	refetch()
 })
