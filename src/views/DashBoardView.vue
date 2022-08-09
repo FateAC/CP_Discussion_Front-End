@@ -1,5 +1,5 @@
 <template>
-	<div v-if="!loading && !error" display="flex" w="full">
+	<div v-if="!isAdminLoading && !isAdminError" display="flex" w="full">
 		<sidebar-comp>
 			<!-- For Admin -->
 			<div v-if="isAdmin">
@@ -15,13 +15,15 @@
 			</div>
 			<!-- For User -->
 			<div v-else>
-				<div v-for="(data, index) in mockUserSiderBar" :key="index">
-					<n-h4
-						font="bold"
-						@click.prevent="fetchData(data.year, data.semester)"
-						cursor="pointer">
-						{{ data.year }} - {{ data.semester }}
-					</n-h4>
+				<div v-if="!selfInfoLoading && !selfInfoError">
+					<div v-for="(data, index) in mockUserSiderBar" :key="index">
+						<n-h4
+							font="bold"
+							@click.prevent="fetchData(data.year, data.semester)"
+							cursor="pointer">
+							{{ data.year }} - {{ data.semester }}
+						</n-h4>
+					</div>
 				</div>
 			</div>
 		</sidebar-comp>
@@ -32,9 +34,9 @@
 						<div v-if="!isAdmin" m="x-auto t-12" max-w="2xl">
 							<n-card>
 								<template #header>
-									<n-h2 font="bold"
-										>{{ course?.year }} - {{ course?.semester }}</n-h2
-									>
+									<n-h2 font="bold">
+										{{ course?.year }} - {{ course?.semester }}
+									</n-h2>
 								</template>
 								<n-menu :options="menuOptions" font="bold" text="lg" />
 							</n-card>
@@ -59,31 +61,12 @@ import HomeworkMgmtComp from "~/components/adminMgmtComp/HomeworkMgmtComp.vue"
 import ContentComp from "~/components/ContentComp.vue"
 import UserHomeComp from "~/components/UserHomeComp.vue"
 
-interface CourseData {
-	year: number
-	semester: string
-}
-
-const mockUserSiderBar = [
-	{
-		year: 2021,
-		semester: "Spring",
-	},
-	{
-		year: 2021,
-		semester: "Fall",
-	},
-	{
-		year: 2022,
-		semester: "Spring",
-	},
-	{
-		year: 2022,
-		semester: "Fall",
-	},
-]
-
-const { result, loading, error, refetch } = useQuery<string>(
+const {
+	result: isAdminResult,
+	loading: isAdminLoading,
+	error: isAdminError,
+	refetch: isAdminRefetch,
+} = useQuery<string>(
 	gql`
 		{
 			isAdmin
@@ -92,28 +75,73 @@ const { result, loading, error, refetch } = useQuery<string>(
 )
 
 const currentView = shallowRef()
-
 const isAdmin = ref<boolean | undefined>(undefined)
 
-watch(result, () => {
-	isAdmin.value = (JSON.parse(JSON.stringify(result?.value ?? ""))["isAdmin"] ?? false) as boolean
+watch(isAdminResult, () => {
+	isAdmin.value = (JSON.parse(JSON.stringify(isAdminResult?.value ?? ""))["isAdmin"] ??
+		false) as boolean
 	currentView.value = isAdmin?.value ? AdminMgmtHomeComp : UserHomeComp
 })
 
+interface Courses {
+	name: string
+}
+
+interface Member {
+	courses: Courses[]
+}
+
+const {
+	result: selfInfoResult,
+	loading: selfInfoLoading,
+	error: selfInfoError,
+	refetch: selfInfoRefetch,
+} = useQuery<string>(
+	gql`
+		{
+			selfInfo {
+				courses {
+					name
+				}
+			}
+		}
+	`
+)
+
+interface CourseData {
+	year: number
+	semester: string
+}
+
+const selfInfo = ref<Member | undefined>(undefined)
+let mockUserSiderBar: CourseData[] = []
+
+watch(selfInfoResult, () => {
+	selfInfo.value = (JSON.parse(JSON.stringify(selfInfoResult?.value ?? ""))["selfInfo"] ??
+		undefined) as Member
+	mockUserSiderBar.length = 0
+	selfInfo.value["courses"].forEach((element) => {
+		mockUserSiderBar.push({
+			year: Number(element["name"].split("_")[0]),
+			semester: element["name"].split("_")[1],
+		})
+	})
+})
+
 onMounted(() => {
-	result.value = undefined
-	refetch()
+	isAdminResult.value = undefined
+	selfInfoResult.value = undefined
+	isAdminRefetch()
+	selfInfoRefetch()
 })
 
 const course = ref<CourseData | null>(null)
 
-function fetchData(year: number, semester: string) {
-	// something to fetch course data here
-	let fetchCourse: CourseData = {
+const fetchData = (year: number, semester: string) => {
+	course.value = {
 		year: year,
 		semester: semester,
 	}
-	course.value = fetchCourse
 	currentView.value = ContentComp
 	return
 }
