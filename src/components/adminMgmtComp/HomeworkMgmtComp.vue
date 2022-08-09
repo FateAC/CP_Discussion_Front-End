@@ -47,11 +47,6 @@
 				<n-button type="primary" w="full" @click="createPostClickHandle"> Post </n-button>
 			</n-card>
 		</n-modal>
-		<n-modal v-model:show="viewHomeworkModal">
-			<n-card style="width: 1000px">
-				<Homework></Homework>
-			</n-card>
-		</n-modal>
 		<n-collapse v-for="[course, posts] in dbHomework" :key="course">
 			<n-collapse-item :title="course">
 				<n-table :single-line="false" m="t-4" text="center">
@@ -76,6 +71,13 @@
 									@click="openPostView(course, index)">
 									{{ post.title }}
 								</n-button>
+								<n-modal v-model:show="viewHomeworkModal">
+									<n-card style="width: 800px">
+										<Suspense>
+											<markdown-comp :mdURL="mdURL" />
+										</Suspense>
+									</n-card>
+								</n-modal>
 							</td>
 							<td>{{ post.poster }}</td>
 							<td>{{ post.createTime }}</td>
@@ -107,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from "vue"
+import { ref, reactive, watch, onMounted } from "vue"
 import {
 	NInput,
 	NTag,
@@ -133,10 +135,12 @@ import {
 import type { UploadFileInfo } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
-import store from "~/scripts/vuex"
-import Homework from "~/assets/homeworks/111-1/HW01.md"
+import { useStore } from "vuex"
+import { useRouter } from "vue-router"
 
 const message = useMessage()
+const router = useRouter()
+const store = useStore()
 
 interface Post {
 	year: string
@@ -153,14 +157,13 @@ interface Post {
 
 const createHomeworkModal = ref(false)
 const viewHomeworkModal = ref(false)
-const currentPost = ref("")
 const uploadMD = ref<UploadInst | null>(null)
 const MDfiles = ref<UploadFileInfo[]>([])
 const createPostFormRef = ref<FormInst | null>(null)
 
 const createPostFormInline = reactive({
 	title: "",
-	year: 2022,
+	year: new Date().getFullYear() - 1911,
 	semester: 1,
 	mdPath: "",
 	tags: ref(["Homework"]),
@@ -174,12 +177,12 @@ const createPostRule = {
 
 const postSemesterOption = [
 	{
-		label: "Spring",
-		value: 1,
-	},
-	{
 		label: "Fall",
 		value: 0,
+	},
+	{
+		label: "Spring",
+		value: 1,
 	},
 ]
 
@@ -261,7 +264,7 @@ watch(result, () => {
 		let current = dbHomework.value.get(course)
 		current?.push({
 			year: hw["year"],
-			semester: hw["semester"] + 1,
+			semester: hw["semester"],
 			_id: hw["_id"],
 			_pid: "still not here",
 			poster: hw["poster"],
@@ -274,9 +277,19 @@ watch(result, () => {
 	})
 })
 
+const mdURL = ref("")
 function openPostView(course: string, index: number) {
-	// WIP
-	//viewHomeworkModal.value = true
+	let post = dbHomework.value.get(course)[index]
+	mdURL.value =
+		"http://localhost:8080/post/" +
+		post["year"] +
+		"/" +
+		post["semester"] +
+		"/" +
+		post["_id"] +
+		".md"
+	console.log(mdURL.value)
+	viewHomeworkModal.value = true
 }
 
 function deletePostHandle(id: string) {
