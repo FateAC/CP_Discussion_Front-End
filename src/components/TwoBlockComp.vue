@@ -3,9 +3,9 @@
 		<content-comp>
 			<slot name="two-block-top" />
 		</content-comp>
-		<div id="down" w="full" h="200px" max-h="300px" m="b-6">
-			<hr p="y-2" @mousedown="resizeContent" style="cursor: row-resize" />
-			<content-comp>
+		<div w="full">
+			<content-comp id="down" w="full" h="200px" max-h="300px" m="b-6">
+				<hr p="y-2" @mousedown="resizeContent" style="cursor: row-resize" />
 				<slot name="two-block-bottom" />
 			</content-comp>
 		</div>
