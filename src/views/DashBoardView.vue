@@ -152,7 +152,13 @@ const menuOptions: MenuOption[] = [
 			h(
 				RouterLink,
 				{
-					to: "homework",
+					to: {
+						name: "homework",
+						query: {
+							year: course.value?.year,
+							semester: course.value?.semester,
+						},
+					},
 				},
 				{ default: () => "作業" }
 			),
