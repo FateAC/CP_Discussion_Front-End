@@ -12,7 +12,7 @@
 		</template>
 		<template #two-block-bottom>
 			<div p="x-1/12 y=4">
-				<comment-comp />
+				<comment-comp :comments="comments" />
 			</div>
 		</template>
 	</two-block-comp>
@@ -35,18 +35,6 @@ function renderIcon(icon: Component) {
 
 const year = ref(new Date().getFullYear() - 1911)
 const semester = ref(0)
-const mdURL = computed(() => {
-	if (menuValue.value == "") return ""
-	return (
-		"http://localhost:8080/post/" +
-		year.value.toString() +
-		"/" +
-		semester.value.toString() +
-		"/" +
-		menuValue.value +
-		".md"
-	)
-})
 
 onMounted(() => {
 	semester.value = route.query.semester?.toString() === "Fall" ? 0 : 1
@@ -55,9 +43,20 @@ onMounted(() => {
 	getPostsByTagsRefetch()
 })
 
+interface Comment {
+	commenter: string
+	content: string
+	mainLevel: number
+	subLevel: number
+	timestamp: Date
+	deleted: boolean
+}
+
 interface Post {
 	_id: string
 	title: string
+	mdPath: string
+	comments: Comment[]
 }
 
 const {
@@ -67,10 +66,19 @@ const {
 	refetch: getPostsByTagsRefetch,
 } = useQuery<string>(
 	gql`
-		query getPostsByTags($inYear: Int!, $inSemester: Int!, $inTags: [String!]!) {
+		query ($inYear: Int!, $inSemester: Int!, $inTags: [String!]!) {
 			getPostsByTags(year: $inYear, semester: $inSemester, tags: $inTags) {
 				_id
 				title
+				mdPath
+				comments {
+					commenter
+					content
+					mainLevel
+					subLevel
+					timestamp
+					deleted
+				}
 			}
 		}
 	`,
@@ -84,6 +92,12 @@ const {
 )
 
 const posts = ref<Post[]>([])
+const mdURL = computed(() => {
+	return menuValue.value === "" ? "" : posts.value[Number(menuValue.value)]["mdPath"]
+})
+const comments = computed(() => {
+	return menuValue.value === "" ? [] : posts.value[Number(menuValue.value)]["comments"]
+})
 
 watch(getPostsByTagsLoading, (watchLoading) => {
 	if (!watchLoading) {
@@ -95,10 +109,10 @@ watch(getPostsByTagsLoading, (watchLoading) => {
 const menuValue = ref("")
 
 const menuOptions: ComputedRef<MenuOption[]> = computed(() => {
-	return posts.value.map((data) => {
+	return posts.value.map((data, index) => {
 		return {
 			label: data["title"],
-			key: data["_id"],
+			key: index,
 			icon: renderIcon(DocumentTextOutline),
 		}
 	})
