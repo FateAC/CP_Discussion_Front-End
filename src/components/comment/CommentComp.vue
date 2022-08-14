@@ -3,6 +3,7 @@
 	<div m="l-8" max-w="4xl">
 		<div display="flex" m="y-4">
 			<n-input
+				v-model:value="newComment.content"
 				m="r-4"
 				type="textarea"
 				text="lg"
@@ -14,7 +15,7 @@
 					minRows: 2,
 					maxRows: 3,
 				}" />
-			<n-button self="center" round type="info">留言</n-button>
+			<n-button self="center" round type="info" @click="newCommentHandle">留言</n-button>
 		</div>
 		<div m="b-4">
 			<div v-for="(row, i) in comments" :key="i">
@@ -90,8 +91,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
-import { NH2, NInput, NButton, NCard, NModal, NSpace } from "naive-ui"
+import { ref, watch, reactive, onMounted } from "vue"
+import { NH2, NInput, NButton, NCard, NModal, NSpace, useMessage } from "naive-ui"
+import { useMutation } from "@vue/apollo-composable"
+import gql from "graphql-tag"
+
+const message = useMessage()
 
 const isShowModal = ref(false)
 const modalComment = ref<Comment | null>(null)
@@ -115,10 +120,12 @@ interface Comment {
 }
 
 interface Props {
+	postID: string
 	comments: Comment[]
 }
 
 const props = defineProps<Props>()
+const emit = defineEmits(["updateCommentComp"])
 
 interface printComment {
 	commenter: string
@@ -131,7 +138,11 @@ interface printComment {
 
 const comments = ref<printComment[][]>([])
 
-watch(props, () => {
+onMounted(() => {
+	propsRefetch()
+})
+
+const propsRefetch = () => {
 	comments.value.length = 0
 	props["comments"].forEach((data) => {
 		if (comments.value.length != data["mainLevel"]) {
@@ -146,5 +157,44 @@ watch(props, () => {
 			deleted: data["deleted"],
 		})
 	})
+	newComment.mainLevel = comments.value.length + 1
+}
+
+watch(props, () => {
+	propsRefetch()
+})
+
+const { mutate: addPostCommentMutation, onDone: addPostCommentOnDone } = useMutation<string>(
+	gql`
+		mutation addPostComment($inID: String!, $inNewComment: NewComment!) {
+			addPostComment(id: $inID, newComment: $inNewComment)
+		}
+	`
+)
+
+const newComment = reactive({
+	content: "",
+	mainLevel: 0,
+	subLevel: 0,
+})
+
+const newCommentHandle = () => {
+	addPostCommentMutation({
+		inID: props["postID"],
+		inNewComment: newComment,
+	})
+}
+
+addPostCommentOnDone((resultMutation) => {
+	if (
+		(JSON.parse(JSON.stringify(resultMutation?.data ?? ""))["addPostComment"] ??
+			false) as boolean
+	) {
+		message.success("留言已新增")
+		newComment.content = ""
+		emit("updateCommentComp")
+	} else {
+		message.error("留言新增失敗")
+	}
 })
 </script>

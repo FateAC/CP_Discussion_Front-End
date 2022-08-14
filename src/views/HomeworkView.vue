@@ -12,7 +12,12 @@
 		</template>
 		<template #two-block-bottom>
 			<div p="x-1/12 y=4">
-				<comment-comp :comments="comments" />
+				<div v-if="menuValue !== '-1'">
+					<comment-comp
+						@updateCommentComp="getPostsByTagsRefetch"
+						:postID="posts[Number(menuValue)]._id"
+						:comments="comments" />
+				</div>
 			</div>
 		</template>
 	</two-block-comp>
@@ -93,7 +98,7 @@ const {
 
 const posts = ref<Post[]>([])
 const mdURL = computed(() => {
-	return menuValue.value === "" ? "" : posts.value[Number(menuValue.value)]["mdPath"]
+	return menuValue.value === "-1" ? "" : posts.value[Number(menuValue.value)]["mdPath"]
 })
 const comments = computed(() => {
 	return menuValue.value === "" ? [] : posts.value[Number(menuValue.value)]["comments"]
@@ -106,13 +111,13 @@ watch(getPostsByTagsLoading, (watchLoading) => {
 	}
 })
 
-const menuValue = ref("")
+const menuValue = ref("-1")
 
 const menuOptions: ComputedRef<MenuOption[]> = computed(() => {
 	return posts.value.map((data, index) => {
 		return {
 			label: data["title"],
-			key: index,
+			key: index.toString(),
 			icon: renderIcon(DocumentTextOutline),
 		}
 	})
