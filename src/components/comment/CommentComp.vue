@@ -35,7 +35,7 @@
 							<template #footer>
 								<n-space align="center">
 									<span> {{ comment.mainLevel }} - {{ comment.subLevel }} </span>
-									<span> {{ comment.timestamp }}</span>
+									<n-time :time="comment.timestamp" type="relative" />
 									<div v-if="!comment.deleted">
 										<n-button
 											m="l-4"
@@ -62,6 +62,7 @@
 											<template #footer>
 												<div display="flex" m="y-4">
 													<n-input
+														v-model:value="replyComment.content"
 														m="r-4"
 														type="textarea"
 														text="lg"
@@ -73,7 +74,16 @@
 															minRows: 1,
 															maxRows: 3,
 														}" />
-													<n-button self="center" round type="info">
+													<n-button
+														self="center"
+														round
+														type="info"
+														@click="
+															replyCommentHandle(
+																modalComment?.mainLevel ?? -1,
+																modalComment?.subLevel ?? -1
+															)
+														">
 														回覆
 													</n-button>
 												</div>
@@ -92,7 +102,7 @@
 
 <script setup lang="ts">
 import { ref, watch, reactive, onMounted } from "vue"
-import { NH2, NInput, NButton, NCard, NModal, NSpace, useMessage } from "naive-ui"
+import { NH2, NInput, NButton, NCard, NModal, NSpace, NTime, useMessage } from "naive-ui"
 import { useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 
@@ -153,7 +163,7 @@ const propsRefetch = () => {
 			content: data["content"],
 			mainLevel: data["mainLevel"],
 			subLevel: data["subLevel"],
-			timestamp: data["timestamp"],
+			timestamp: new Date(data["timestamp"]),
 			deleted: data["deleted"],
 		})
 	})
@@ -183,6 +193,30 @@ const newCommentHandle = () => {
 		inID: props["postID"],
 		inNewComment: newComment,
 	})
+}
+
+const replyComment = reactive({
+	content: "",
+	mainLevel: 0,
+	subLevel: 0,
+})
+
+const replyCommentHandle = (replyMainLevel: number, replySubLevel: number) => {
+	replyComment.content =
+		"Reply " +
+		replyMainLevel.toString() +
+		"-" +
+		replySubLevel.toString() +
+		": " +
+		replyComment.content
+	replyComment.mainLevel = replyMainLevel
+	replyComment.subLevel = comments.value[replyMainLevel - 1].length
+	addPostCommentMutation({
+		inID: props["postID"],
+		inNewComment: replyComment,
+	})
+	replyComment.content = ""
+	isShowModal.value = false
 }
 
 addPostCommentOnDone((resultMutation) => {
