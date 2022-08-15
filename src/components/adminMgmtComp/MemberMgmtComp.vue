@@ -6,54 +6,56 @@
 		</div>
 		<n-modal v-model:show="createMemberModel">
 			<n-card style="width: 600px" title="新增使用者">
-				<n-form
-					ref="createMemberFormRef"
-					label-placement="left"
-					:model="createMemberFormInline"
-					:rules="createMemberRules">
-					<n-space vertical size="medium" text="left">
-						<n-form-item path="email">
-							<n-auto-complete
-								v-model:value="createMemberFormInline.email"
-								:input-props="{ autocomplete: 'disabled' }"
-								:options="options"
-								placeholder="信箱">
-								<template #prefix>
-									<i-ic:outline-email mr="2" color="#808695" />
-								</template>
-							</n-auto-complete>
-						</n-form-item>
-						<n-form-item path="password">
-							<n-input
-								v-model:value="createMemberFormInline.password"
-								type="password"
-								show-password-on="click"
-								placeholder="密碼">
-								<template #prefix>
-									<i-carbon:locked mr="2" color="#808695" />
-								</template>
-							</n-input>
-							<n-button strong secondary circle ml="2" @click="randPWD">
-								<i-fad:random-1dice />
+				<n-spin v-model:show="createMemberShowSpin">
+					<n-form
+						ref="createMemberFormRef"
+						label-placement="left"
+						:model="createMemberFormInline"
+						:rules="createMemberRules">
+						<n-space vertical size="medium" text="left">
+							<n-form-item path="email">
+								<n-auto-complete
+									v-model:value="createMemberFormInline.email"
+									:input-props="{ autocomplete: 'disabled' }"
+									:options="options"
+									placeholder="信箱">
+									<template #prefix>
+										<i-ic:outline-email mr="2" color="#808695" />
+									</template>
+								</n-auto-complete>
+							</n-form-item>
+							<n-form-item path="password">
+								<n-input
+									v-model:value="createMemberFormInline.password"
+									type="password"
+									show-password-on="click"
+									placeholder="密碼">
+									<template #prefix>
+										<i-carbon:locked mr="2" color="#808695" />
+									</template>
+								</n-input>
+								<n-button strong secondary circle ml="2" @click="randPWD">
+									<i-fad:random-1dice />
+								</n-button>
+							</n-form-item>
+							<n-form-item label="管理員" path="isAdmin">
+								<n-switch v-model:value="createMemberFormInline.isAdmin" />
+							</n-form-item>
+							<n-form-item label="課程" path="courses">
+								<n-dynamic-input
+									v-model:value="createMemberFormInline.courses"
+									:on-create="onCreateCourse">
+									<template #default="{ value }">
+										<n-input v-model:value="value.name" type="text" />
+									</template>
+								</n-dynamic-input>
+							</n-form-item>
+							<n-button type="primary" w="full" @click="createMemberHandle">
+								新增
 							</n-button>
-						</n-form-item>
-						<n-form-item label="管理員" path="isAdmin">
-							<n-switch v-model:value="createMemberFormInline.isAdmin" />
-						</n-form-item>
-						<n-form-item label="課程" path="courses">
-							<n-dynamic-input
-								v-model:value="createMemberFormInline.courses"
-								:on-create="onCreateCourse">
-								<template #default="{ value }">
-									<n-input v-model:value="value.name" type="text" />
-								</template>
-							</n-dynamic-input>
-						</n-form-item>
-						<n-button type="primary" w="full" @click="createMemberHandle">
-							新增
-						</n-button>
-					</n-space>
-				</n-form>
+						</n-space>
+					</n-form>
+				</n-spin>
 			</n-card>
 		</n-modal>
 		<n-table :single-line="false" m="t-4" text="center">
@@ -164,12 +166,14 @@ import {
 	useMessage,
 	NTooltip,
 	NPopconfirm,
+	NSpin,
 } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 import emailOptions from "~/scripts/autoComplete"
 import bcrypt from "bcryptjs"
 import { useStore } from "vuex"
+import { shouldWriteResult } from "@apollo/client/core/QueryInfo"
 
 const store = useStore()
 
@@ -204,7 +208,7 @@ const createMemberFormInline = reactive({
 	email: "",
 	password: "",
 	isAdmin: ref(false),
-	courses: ref([]),
+	courses: ref<string[]>([]),
 })
 
 const onCreateCourse = () => {
@@ -247,13 +251,19 @@ const { mutate: createMemberMutation, onDone: createMemberOnDone } = useMutation
 	`
 )
 
-const createMemberHandle = () => {
+const createMemberShowSpin = ref(false)
+
+const createMemberHandle = async () => {
+	createMemberShowSpin.value = true
+	const hashedPassword = await bcrypt.hash(
+		createMemberFormInline.password,
+		bcrypt.genSaltSync(15)
+	)
 	createMemberFormRef.value?.validate((error) => {
 		if (!error) {
-			console.log(createMemberFormInline.courses)
 			createMemberMutation({
 				email: createMemberFormInline.email,
-				password: bcrypt.hashSync(createMemberFormInline.password, bcrypt.genSaltSync(15)),
+				password: hashedPassword,
 				isAdmin: createMemberFormInline.isAdmin,
 				courses: createMemberFormInline.courses,
 			})
@@ -264,10 +274,15 @@ const createMemberHandle = () => {
 const message = useMessage()
 
 createMemberOnDone((result) => {
+	createMemberShowSpin.value = false
 	const username = JSON.parse(JSON.stringify(result.data))["createMember"]["username"]
 	if (username) {
-		createMemberModel.value = false
 		message.success("新增成功")
+		createMemberModel.value = false
+		createMemberFormInline.email = ""
+		createMemberFormInline.password = ""
+		createMemberFormInline.isAdmin = false
+		createMemberFormInline.courses.length = 0
 	} else {
 		message.success("新增失敗")
 	}
