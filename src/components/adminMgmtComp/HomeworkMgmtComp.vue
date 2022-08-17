@@ -47,63 +47,65 @@
 				<n-button type="primary" w="full" @click="createPostClickHandle"> Post </n-button>
 			</n-card>
 		</n-modal>
-		<n-collapse v-for="[course, posts] in dbHomework" :key="course">
-			<n-collapse-item :title="course">
-				<n-table :single-line="false" m="t-4" text="center">
-					<thead font="extrabold">
-						<tr>
-							<th>#</th>
-							<th>PostName</th>
-							<th>Author</th>
-							<th>PostTime</th>
-							<th>LastModify</th>
-							<th>Tags</th>
-							<th>操作</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr v-for="(post, index) in posts" :key="index">
-							<td>{{ index + 1 }}</td>
-							<td>
-								<n-button
-									quaternary
-									type="success"
-									@click="openPostView(course, index)">
-									{{ post.title }}
-								</n-button>
-								<n-modal v-model:show="viewHomeworkModal">
-									<n-card style="width: 800px">
-										<Suspense>
-											<markdown-comp :mdURL="mdURL" />
-										</Suspense>
-									</n-card>
-								</n-modal>
-							</td>
-							<td>{{ post.poster }}</td>
-							<td>{{ post.createTime }}</td>
-							<td>{{ post.lastModifyTime }}</td>
-							<td>
-								<n-tag v-for="tag in post.tags" :key="tag">
-									{{ tag }}
-								</n-tag>
-							</td>
-							<td>
-								<n-space justify="center">
-									<n-popconfirm
-										positive-text="Confirm"
-										negative-text="Cancel"
-										@positive-click="deletePostHandle(post._id)">
-										<template #trigger>
-											<n-button round type="error"> Delete</n-button>
-										</template>
-										Are you sure about deleting this post?
-									</n-popconfirm>
-								</n-space>
-							</td>
-						</tr>
-					</tbody>
-				</n-table>
-			</n-collapse-item>
+		<n-collapse>
+			<template v-for="[course, posts] in dbHomework" :key="course">
+				<n-collapse-item :title="course" name="course">
+					<n-table :single-line="false" m="t-4" text="center">
+						<thead font="extrabold">
+							<tr>
+								<th>#</th>
+								<th>PostName</th>
+								<th>Author</th>
+								<th>PostTime</th>
+								<th>LastModify</th>
+								<th>Tags</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(post, index) in posts" :key="index">
+								<td>{{ index + 1 }}</td>
+								<td>
+									<n-button
+										quaternary
+										type="success"
+										@click="openPostView(course, index)">
+										{{ post.title }}
+									</n-button>
+									<n-modal v-model:show="viewHomeworkModal">
+										<n-card style="width: 800px">
+											<Suspense>
+												<markdown-comp :mdURL="mdURL" />
+											</Suspense>
+										</n-card>
+									</n-modal>
+								</td>
+								<td>{{ post.poster }}</td>
+								<td>{{ post.createTime }}</td>
+								<td>{{ post.lastModifyTime }}</td>
+								<td>
+									<n-tag v-for="tag in post.tags" :key="tag">
+										{{ tag }}
+									</n-tag>
+								</td>
+								<td>
+									<n-space justify="center">
+										<n-popconfirm
+											positive-text="Confirm"
+											negative-text="Cancel"
+											@positive-click="deletePostHandle(post._id)">
+											<template #trigger>
+												<n-button round type="error"> Delete</n-button>
+											</template>
+											Are you sure about deleting this post?
+										</n-popconfirm>
+									</n-space>
+								</td>
+							</tr>
+						</tbody>
+					</n-table>
+				</n-collapse-item>
+			</template>
 		</n-collapse>
 	</div>
 </template>
