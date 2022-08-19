@@ -36,9 +36,8 @@
 								<n-space align="center">
 									<span> {{ comment.mainLevel }} - {{ comment.subLevel }} </span>
 									<n-time :time="comment.timestamp" type="relative" />
-									<div v-if="!comment.deleted">
+									<n-space v-if="!comment.deleted" justify="start">
 										<n-button
-											m="l-4"
 											self="center"
 											quaternary
 											round
@@ -89,7 +88,36 @@
 												</div>
 											</template>
 										</n-modal>
-									</div>
+										<div
+											v-if="
+												!isAdminLoading &&
+												!isAdminError &&
+												!selfInfoLoading &&
+												!selfInfoError
+											">
+											<n-popconfirm
+												v-if="isAdmin || comment.commenter == selfInfo?._id"
+												@positive-click="
+													deletePostCommentHandle(
+														comment.mainLevel,
+														comment.subLevel
+													)
+												"
+												negative-text="先不要"
+												positive-text="確定">
+												<template #trigger>
+													<n-button
+														self="center"
+														quaternary
+														round
+														type="error">
+														刪除留言
+													</n-button>
+												</template>
+												確定要刪除此留言嗎？
+											</n-popconfirm>
+										</div>
+									</n-space>
 								</n-space>
 							</template>
 						</n-card>
@@ -102,8 +130,18 @@
 
 <script setup lang="ts">
 import { ref, watch, reactive, onMounted } from "vue"
-import { NH2, NInput, NButton, NCard, NModal, NSpace, NTime, useMessage } from "naive-ui"
-import { useMutation } from "@vue/apollo-composable"
+import {
+	NH2,
+	NInput,
+	NButton,
+	NCard,
+	NModal,
+	NSpace,
+	NTime,
+	useMessage,
+	NPopconfirm,
+} from "naive-ui"
+import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 
 const message = useMessage()
@@ -150,6 +188,8 @@ const comments = ref<printComment[][]>([])
 
 onMounted(() => {
 	propsRefetch()
+	selfInfoRefetch()
+	isAdminRefetch()
 })
 
 const propsRefetch = () => {
@@ -189,10 +229,14 @@ const newComment = reactive({
 })
 
 const newCommentHandle = () => {
-	addPostCommentMutation({
-		inID: props["postID"],
-		inNewComment: newComment,
-	})
+	if (newComment.content !== "") {
+		addPostCommentMutation({
+			inID: props["postID"],
+			inNewComment: newComment,
+		})
+	} else {
+		message.warning("內容不能是空的")
+	}
 }
 
 const replyComment = reactive({
@@ -202,21 +246,25 @@ const replyComment = reactive({
 })
 
 const replyCommentHandle = (replyMainLevel: number, replySubLevel: number) => {
-	replyComment.content =
-		"Reply " +
-		replyMainLevel.toString() +
-		"-" +
-		replySubLevel.toString() +
-		": " +
-		replyComment.content
-	replyComment.mainLevel = replyMainLevel
-	replyComment.subLevel = comments.value[replyMainLevel - 1].length
-	addPostCommentMutation({
-		inID: props["postID"],
-		inNewComment: replyComment,
-	})
-	replyComment.content = ""
-	isShowModal.value = false
+	if (replyComment.content !== "") {
+		replyComment.content =
+			"Reply " +
+			replyMainLevel.toString() +
+			"-" +
+			replySubLevel.toString() +
+			": " +
+			replyComment.content
+		replyComment.mainLevel = replyMainLevel
+		replyComment.subLevel = comments.value[replyMainLevel - 1].length
+		addPostCommentMutation({
+			inID: props["postID"],
+			inNewComment: replyComment,
+		})
+		replyComment.content = ""
+		isShowModal.value = false
+	} else {
+		message.warning("內容不能是空的")
+	}
 }
 
 addPostCommentOnDone((resultMutation) => {
@@ -229,6 +277,80 @@ addPostCommentOnDone((resultMutation) => {
 		emit("updateCommentComp")
 	} else {
 		message.error("留言新增失敗")
+	}
+})
+
+interface Member {
+	_id: string
+}
+
+const {
+	result: selfInfoResult,
+	loading: selfInfoLoading,
+	error: selfInfoError,
+	refetch: selfInfoRefetch,
+} = useQuery<string>(
+	gql`
+		{
+			selfInfo {
+				_id
+			}
+		}
+	`
+)
+
+const selfInfo = ref<Member | undefined>(undefined)
+
+watch(selfInfoResult, () => {
+	selfInfo.value = (JSON.parse(JSON.stringify(selfInfoResult?.value ?? ""))["selfInfo"] ??
+		undefined) as Member
+})
+
+const {
+	result: isAdminResult,
+	loading: isAdminLoading,
+	error: isAdminError,
+	refetch: isAdminRefetch,
+} = useQuery<string>(
+	gql`
+		{
+			isAdmin
+		}
+	`
+)
+
+const isAdmin = ref<boolean | undefined>(undefined)
+
+watch(isAdminResult, () => {
+	isAdmin.value = (JSON.parse(JSON.stringify(isAdminResult?.value ?? ""))["isAdmin"] ??
+		false) as boolean
+})
+
+const { mutate: deletePostCommentMutation, onDone: deletePostCommentOnDone } = useMutation<string>(
+	gql`
+		mutation deletePostComment($inID: String!, $inMainLevel: Int!, $inSubLevel: Int!) {
+			deletePostComment(id: $inID, mainLevel: $inMainLevel, subLevel: $inSubLevel)
+		}
+	`
+)
+
+const deletePostCommentHandle = (mainLevel: number, subLevel: number) => {
+	deletePostCommentMutation({
+		inID: props["postID"],
+		inMainLevel: mainLevel,
+		inSubLevel: subLevel,
+	})
+}
+
+deletePostCommentOnDone((resultMutation) => {
+	if (
+		(JSON.parse(JSON.stringify(resultMutation?.data ?? ""))["deletePostComment"] ??
+			false) as boolean
+	) {
+		message.success("留言已刪除")
+		emit("updateCommentComp")
+	} else {
+		message.error("留言刪除失敗")
 	}
 })
 </script>

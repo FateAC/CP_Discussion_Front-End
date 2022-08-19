@@ -1,6 +1,6 @@
 <template>
 	<n-h1>Homework Management</n-h1>
-	<div max-w="5xl" m="x-auto" v-if="!loading">
+	<div max-w="5xl" m="x-auto" v-if="!loading && !error">
 		<div text="right">
 			<n-button type="success" @click="createHomeworkModal = true">新增作業</n-button>
 		</div>

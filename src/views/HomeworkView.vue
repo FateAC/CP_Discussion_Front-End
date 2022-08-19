@@ -2,7 +2,7 @@
 	<sidebar-comp v-if="!getPostsByTagsLoading && !getPostsByTagsError">
 		<n-menu v-model:value="menuValue" :options="menuOptions" />
 	</sidebar-comp>
-	<two-block-comp>
+	<two-block-comp v-if="!getPostsByTagsLoading && !getPostsByTagsError">
 		<template #two-block-top>
 			<div p="x-1/12 y-4">
 				<Suspense v-if="mdURL != ''">
@@ -34,7 +34,7 @@ import { DocumentTextOutline } from "@vicons/ionicons5"
 
 const route = useRoute()
 
-function renderIcon(icon: Component) {
+const renderIcon = (icon: Component) => {
 	return () => h(NIcon, null, { default: () => h(icon) })
 }
 
