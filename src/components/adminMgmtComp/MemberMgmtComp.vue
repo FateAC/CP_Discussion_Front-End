@@ -58,12 +58,16 @@
 				</n-spin>
 			</n-card>
 		</n-modal>
+		<n-modal :show="modifyUserCourseModal">
+			<n-card style="width: 600px" title="Modify Course"> </n-card>
+		</n-modal>
 		<n-table :single-line="false" m="t-4" text="center">
 			<thead font="extrabold">
 				<tr>
 					<th>#</th>
 					<th>Name</th>
 					<th>Email</th>
+					<th>Course</th>
 					<th>管理員</th>
 					<th>基本操作</th>
 				</tr>
@@ -73,6 +77,14 @@
 					<td>{{ index + 1 }}</td>
 					<td>{{ member.username }}</td>
 					<td>{{ member.email }}</td>
+					<td>
+						<n-space justify="center">
+							<template v-for="(course, index) in member.courses" :key="index">
+								<n-tag>{{ course.name }}</n-tag>
+							</template>
+							<n-tag type="success" @click="modifyUserCourseModal = true">+</n-tag>
+						</n-space>
+					</td>
 					<td>
 						<n-space justify="center">
 							<n-popconfirm
@@ -167,6 +179,7 @@ import {
 	NTooltip,
 	NPopconfirm,
 	NSpin,
+	NTag,
 } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
@@ -177,11 +190,16 @@ import { shouldWriteResult } from "@apollo/client/core/QueryInfo"
 
 const store = useStore()
 
+interface Course {
+	name: string
+}
+
 interface Member {
 	_id: string
 	username: string
 	email: string
 	isAdmin: boolean
+	courses: Course[]
 }
 
 const { result, loading, error, refetch } = useQuery<string>(
@@ -192,6 +210,9 @@ const { result, loading, error, refetch } = useQuery<string>(
 				username
 				email
 				isAdmin
+				courses {
+					name
+				}
 			}
 		}
 	`
@@ -202,6 +223,7 @@ const members = computed(() => {
 })
 
 const createMemberModel = ref(false)
+const modifyUserCourseModal = ref(false)
 const createMemberFormRef = ref<FormInst | null>(null)
 
 const createMemberFormInline = reactive({
