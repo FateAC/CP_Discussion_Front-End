@@ -47,9 +47,12 @@
 				<n-button type="primary" w="full" @click="createPostClickHandle"> Post </n-button>
 			</n-card>
 		</n-modal>
-		<n-collapse>
+		<n-collapse arrow-placement="right">
 			<template v-for="[course, posts] in dbHomework" :key="course">
-				<n-collapse-item :title="course" name="course">
+				<n-collapse-item :name="course">
+					<template #header>
+						<div font="bold" text="lg">{{ course }}</div>
+					</template>
 					<n-table :single-line="false" m="t-4" text="center">
 						<thead font="extrabold">
 							<tr>
@@ -72,17 +75,10 @@
 										@click="openPostView(course, index)">
 										{{ post.title }}
 									</n-button>
-									<n-modal v-model:show="viewHomeworkModal">
-										<n-card style="width: 800px">
-											<Suspense>
-												<markdown-comp :mdURL="mdURL" />
-											</Suspense>
-										</n-card>
-									</n-modal>
 								</td>
 								<td>{{ post.poster }}</td>
-								<td>{{ post.createTime }}</td>
-								<td>{{ post.lastModifyTime }}</td>
+								<td><n-time :time="post.createTime" /></td>
+								<td><n-time :time="post.lastModifyTime" /></td>
 								<td>
 									<n-tag v-for="tag in post.tags" :key="tag">
 										{{ tag }}
@@ -133,6 +129,7 @@ import {
 	UploadInst,
 	NPopconfirm,
 	useMessage,
+	NTime,
 } from "naive-ui"
 import type { UploadFileInfo } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
@@ -153,12 +150,11 @@ interface Post {
 	title: string
 	tags: string[]
 	mdPath: string
-	createTime: string
-	lastModifyTime: string
+	createTime: Date
+	lastModifyTime: Date
 }
 
 const createHomeworkModal = ref(false)
-const viewHomeworkModal = ref(false)
 const uploadMD = ref<UploadInst | null>(null)
 const MDfiles = ref<UploadFileInfo[]>([])
 const createPostFormRef = ref<FormInst | null>(null)
@@ -188,7 +184,7 @@ const postSemesterOption = [
 	},
 ]
 
-async function beforeMdUpload(data: { file: UploadFileInfo; fileList: UploadFileInfo[] }) {
+const beforeMdUpload = async (data: { file: UploadFileInfo; fileList: UploadFileInfo[] }) => {
 	if (data.file.file?.name.endsWith(".md") === false) {
 		message.error("Only .md file is allowed.")
 		return false
@@ -273,34 +269,34 @@ watch(result, () => {
 			title: hw["title"],
 			tags: hw["tags"],
 			mdPath: hw["mdPath"],
-			createTime: hw["createTime"],
-			lastModifyTime: hw["lastModifyTime"],
+			createTime: new Date(hw["createTime"]),
+			lastModifyTime: new Date(hw["lastModifyTime"]),
 		} as Post)
 	})
 })
 
-const mdURL = ref("")
-function openPostView(course: string, index: number) {
-	let post = dbHomework.value.get(course)[index]
-	mdURL.value =
-		"http://localhost:8080/post/" +
-		post["year"] +
-		"/" +
-		post["semester"] +
-		"/" +
-		post["_id"] +
-		".md"
-	console.log(mdURL.value)
-	viewHomeworkModal.value = true
+const openPostView = (course: string, index: number) => {
+	const post = dbHomework.value.get(course)[index]
+	const year = post.year + 1911 + post.semester
+	const semester = post.semester == 0 ? "Fall" : "Spring"
+	const routeURL = router.resolve({
+		name: "homework",
+		query: {
+			year: year,
+			semester: semester,
+			menuValue: index.toString(),
+		},
+	})
+	window.open(routeURL.fullPath, "_blank")
 }
 
-function deletePostHandle(id: string) {
+const deletePostHandle = (id: string) => {
 	deletePostMutate({
 		input: id,
 	})
 }
 
-function createPostClickHandle() {
+const createPostClickHandle = () => {
 	if (MDfiles.value.length !== 1) {
 		message.error("Please upload a markdown file.")
 		return
