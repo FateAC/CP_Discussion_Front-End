@@ -58,8 +58,26 @@
 				</n-spin>
 			</n-card>
 		</n-modal>
-		<n-modal :show="modifyUserCourseModal">
-			<n-card style="width: 600px" title="Modify Course"> </n-card>
+		<n-modal v-model:show="modifyUserCourseModal" v-if="currentModifyUser">
+			<n-card style="width: 600px" title="Edit Course">
+				<n-space vertical>
+					<n-dynamic-input
+						v-model:value="currentModifyCourses"
+						:on-create="currentModifyAddCourse">
+						<template #default="{ value }">
+							<div style="display: flex; align-items: center; width: 100%">
+								<n-input
+									v-model:value="value.name"
+									type="text"
+									placeholder="Course Name" />
+							</div>
+						</template>
+					</n-dynamic-input>
+					<n-button type="success" @click="updateModifyCourse()">
+						Update Course
+					</n-button>
+				</n-space>
+			</n-card>
 		</n-modal>
 		<n-table :single-line="false" m="t-4" text="center">
 			<thead font="extrabold">
@@ -79,10 +97,11 @@
 					<td>{{ member.email }}</td>
 					<td>
 						<n-space justify="center">
-							<template v-for="(course, index) in member.courses" :key="index">
-								<n-tag>{{ course.name }}</n-tag>
+							<template v-for="course in member.courses" :key="course">
+								<n-tag>
+									{{ course.name }}
+								</n-tag>
 							</template>
-							<n-tag type="success" @click="modifyUserCourseModal = true">+</n-tag>
 						</n-space>
 					</td>
 					<td>
@@ -151,6 +170,9 @@
 								</template>
 								為什麼會想要刪除自己呢??
 							</n-tooltip>
+							<n-button round type="success" @click="openModifyUserModal(index)">
+								Edit course
+							</n-button>
 						</n-space>
 					</td>
 				</tr>
@@ -163,6 +185,7 @@
 import { computed, ref, reactive } from "vue"
 import {
 	NH1,
+	NH2,
 	NTable,
 	NButton,
 	NSpace,
@@ -180,6 +203,7 @@ import {
 	NPopconfirm,
 	NSpin,
 	NTag,
+	NDynamicTags,
 } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
@@ -223,7 +247,6 @@ const members = computed(() => {
 })
 
 const createMemberModel = ref(false)
-const modifyUserCourseModal = ref(false)
 const createMemberFormRef = ref<FormInst | null>(null)
 
 const createMemberFormInline = reactive({
@@ -360,4 +383,24 @@ updateMemberIsAdminOnDone((result) => {
 	}
 	refetch()
 })
+
+// modify course declaration
+const modifyUserCourseModal = ref(false)
+const currentModifyUser = ref<Member | null>(null)
+const currentModifyCourses = ref<Course[]>([])
+function openModifyUserModal(index: number) {
+	modifyUserCourseModal.value = true
+	currentModifyUser.value = members.value[index]
+	currentModifyCourses.value = currentModifyUser.value.courses
+}
+let currentModifyAddCourse = () => {
+	return { name: "" }
+}
+function updateModifyCourse() {
+	let comparePool = currentModifyCourses.value.map((val) => JSON.stringify(val))
+	currentModifyCourses.value = currentModifyCourses.value.filter((val, index) => {
+		return comparePool.indexOf(JSON.stringify(val)) === index
+	})
+	// something to call the query
+}
 </script>
