@@ -218,6 +218,10 @@ interface Course {
 	name: string
 }
 
+interface NewCourse {
+	name: string
+}
+
 interface Member {
 	_id: string
 	username: string
@@ -394,13 +398,70 @@ function openModifyUserModal(index: number) {
 	currentModifyCourses.value = currentModifyUser.value.courses
 }
 let currentModifyAddCourse = () => {
-	return { name: "" }
+	return { name: "" } as Course
 }
 function updateModifyCourse() {
-	let comparePool = currentModifyCourses.value.map((val) => JSON.stringify(val))
+	if (currentModifyUser.value === null) {
+		return
+	}
+	let modifiedCourses = currentModifyCourses.value.map((val) => JSON.stringify(val))
 	currentModifyCourses.value = currentModifyCourses.value.filter((val, index) => {
-		return comparePool.indexOf(JSON.stringify(val)) === index
+		return modifiedCourses.indexOf(JSON.stringify(val)) === index
 	})
+	modifiedCourses = currentModifyCourses.value.map((val) => JSON.stringify(val))
+	let originCoursesStr = currentModifyUser.value.courses.map((val) => JSON.stringify(val))
+	let deleteCourses = originCoursesStr
+		.filter((val) => {
+			return !modifiedCourses.includes(val)
+		})
+		.map((res) => JSON.parse(res))
+	let newCourses = modifiedCourses
+		.filter((val) => {
+			return !originCoursesStr.includes(val)
+		})
+		.map((res) => JSON.parse(res))
+
+	deleteCourses.forEach((e) => {
+		if ("__typename" in e) {
+			delete e["__typename"]
+		}
+	})
+
+	if (deleteCourses.length === 0 && newCourses.length === 0) {
+		message.success("No update")
+		return
+	}
+	let query = {
+		userID: currentModifyUser.value._id,
+		newCourses: newCourses,
+		delCourses: deleteCourses,
+	}
+	updateCoursesMutation(query)
+
 	// something to call the query
 }
+
+const { mutate: updateCoursesMutation, onDone: updateCoursesDone } = useMutation<string>(
+	gql`
+		mutation updateMemberCourses(
+			$userID: String!
+			$newCourses: [NewCourse!]!
+			$delCourses: [NewCourse!]!
+		) {
+			updateMemberCourses(id: $userID, add: $newCourses, remove: $delCourses) {
+				name
+			}
+		}
+	`
+)
+updateCoursesDone((result) => {
+	if (
+		(JSON.parse(JSON.stringify(result?.data ?? ""))["updateMemberCourses"] ?? false) as boolean
+	) {
+		message.success("課程更新成功")
+	} else {
+		message.success("更新失敗")
+	}
+	refetch()
+})
 </script>
