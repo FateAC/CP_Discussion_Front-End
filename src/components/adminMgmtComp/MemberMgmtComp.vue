@@ -431,11 +431,13 @@ function updateModifyCourse() {
 		message.success("No update")
 		return
 	}
+
 	let query = {
 		userID: currentModifyUser.value._id,
 		newCourses: newCourses,
 		delCourses: deleteCourses,
 	}
+	console.log(query)
 	updateCoursesMutation(query)
 
 	// something to call the query
@@ -463,5 +465,6 @@ updateCoursesDone((result) => {
 		message.success("更新失敗")
 	}
 	refetch()
+	modifyUserCourseModal.value = false
 })
 </script>
