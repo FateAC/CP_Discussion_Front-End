@@ -63,7 +63,8 @@
 				<n-space vertical>
 					<n-dynamic-input
 						v-model:value="currentModifyCourses"
-						:on-create="currentModifyAddCourse">
+						:on-create="currentModifyAddCourse"
+						:on-remove="currentModifyRemoveCourse">
 						<template #default="{ value }">
 							<div style="display: flex; align-items: center; width: 100%">
 								<n-input
@@ -398,12 +399,22 @@ function openModifyUserModal(index: number) {
 	currentModifyCourses.value = currentModifyUser.value.courses
 }
 let currentModifyAddCourse = () => {
-	return { name: "" } as Course
+	return {} as Course
+}
+let currentModifyRemoveCourse = (index: number) => {
+	// somehow check this item is in old courses or not
+	return
 }
 function updateModifyCourse() {
 	if (currentModifyUser.value === null) {
 		return
 	}
+	currentModifyCourses.value.forEach((val: any) => {
+		if ("__typename" in val) {
+			delete val["__typename"]
+		}
+	})
+	console.log(currentModifyCourses.value)
 	let modifiedCourses = currentModifyCourses.value.map((val) => JSON.stringify(val))
 	currentModifyCourses.value = currentModifyCourses.value.filter((val, index) => {
 		return modifiedCourses.indexOf(JSON.stringify(val)) === index
@@ -421,12 +432,6 @@ function updateModifyCourse() {
 		})
 		.map((res) => JSON.parse(res))
 
-	deleteCourses.forEach((e) => {
-		if ("__typename" in e) {
-			delete e["__typename"]
-		}
-	})
-
 	if (deleteCourses.length === 0 && newCourses.length === 0) {
 		message.success("No update")
 		return
@@ -437,7 +442,6 @@ function updateModifyCourse() {
 		newCourses: newCourses,
 		delCourses: deleteCourses,
 	}
-	console.log(query)
 	updateCoursesMutation(query)
 
 	// something to call the query
