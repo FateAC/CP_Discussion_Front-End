@@ -1,6 +1,6 @@
 <template>
 	<n-card
-		class="bg-transparent bg-gradient-to-r from-viceGreen/50 to-viceBlue/50 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
+		class="bg-transparent bg-gradient-to-r rounded-xl from-viceGreen/50 to-viceBlue/50 shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
 		m="x-auto t-12 b-auto"
 		max-w="xl">
 		<template #header>
@@ -55,7 +55,7 @@ watch(routeQuery, (newVal, oldVal) => {
 onMounted(() => {
 	urlToken.value = route.query.token?.toString() ?? ""
 	if (urlToken.value != "") {
-		window.localStorage.setItem("token", urlToken.value)
+		window.localStorage.setItem("access_token", urlToken.value)
 	}
 	console.log(urlToken.value)
 })

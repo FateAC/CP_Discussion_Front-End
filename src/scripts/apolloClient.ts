@@ -4,10 +4,10 @@ import { createUploadLink } from "apollo-upload-client"
 
 const authLink = new ApolloLink((operation, forward) => {
 	// add the authorization to the headers
-	const token = localStorage.getItem("token")
+	const accessToken = localStorage.getItem("access_token")
 	operation.setContext({
 		headers: {
-			Authorization: token ? `Bearer ${token}` : "",
+			Authorization: accessToken ? `Bearer ${accessToken}` : "",
 		},
 	})
 	return forward(operation)

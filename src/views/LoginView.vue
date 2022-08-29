@@ -1,6 +1,6 @@
 <template>
 	<n-card
-		class="bg-transparent bg-gradient-to-r from-viceGreen/50 to-viceBlue/50 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
+		class="bg-transparent bg-gradient-to-r rounded-xl from-viceGreen/50 to-viceBlue/50 shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
 		w="md"
 		max-w="md"
 		m="x-auto y-12"
@@ -128,7 +128,7 @@ loginOnDone((result) => {
 	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
 	if (auth.value.state) {
 		message.success("登入成功")
-		window.localStorage.setItem("token", auth.value.token)
+		window.localStorage.setItem("refresh_token", auth.value.token)
 		store.dispatch("username", formInline.username.split("@")[0])
 		router.replace("/dashboard")
 	} else {
