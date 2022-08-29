@@ -63,8 +63,7 @@
 				<n-space vertical>
 					<n-dynamic-input
 						v-model:value="currentModifyCourses"
-						:on-create="currentModifyAddCourse"
-						:on-remove="currentModifyRemoveCourse">
+						:on-create="currentModifyAddCourse">
 						<template #default="{ value }">
 							<div style="display: flex; align-items: center; width: 100%">
 								<n-input
@@ -284,7 +283,11 @@ const randPWD = () => {
 	}
 }
 
-const { mutate: createMemberMutation, onDone: createMemberOnDone } = useMutation<string>(
+const {
+	mutate: createMemberMutation,
+	onDone: createMemberOnDone,
+	onError: createMemberErrorHandle,
+} = useMutation<string>(
 	gql`
 		mutation createMember(
 			$email: String!
@@ -304,21 +307,26 @@ const { mutate: createMemberMutation, onDone: createMemberOnDone } = useMutation
 const createMemberShowSpin = ref(false)
 
 const createMemberHandle = async () => {
-	createMemberShowSpin.value = true
-	const hashedPassword = await bcrypt.hash(
-		createMemberFormInline.password,
-		bcrypt.genSaltSync(15)
-	)
+	let errorHandle = false
 	createMemberFormRef.value?.validate((error) => {
-		if (!error) {
-			createMemberMutation({
-				email: createMemberFormInline.email,
-				password: hashedPassword,
-				isAdmin: createMemberFormInline.isAdmin,
-				courses: createMemberFormInline.courses,
-			})
+		if (error) {
+			createMemberShowSpin.value = false
+			errorHandle = true
 		}
 	})
+	if (errorHandle === false) {
+		createMemberShowSpin.value = true
+		const hashedPassword = await bcrypt.hash(
+			createMemberFormInline.password,
+			bcrypt.genSaltSync(15)
+		)
+		createMemberMutation({
+			email: createMemberFormInline.email,
+			password: hashedPassword,
+			isAdmin: createMemberFormInline.isAdmin,
+			courses: createMemberFormInline.courses,
+		})
+	}
 }
 
 const message = useMessage()
@@ -337,6 +345,15 @@ createMemberOnDone((result) => {
 		message.success("新增失敗")
 	}
 	refetch()
+})
+
+createMemberErrorHandle((error) => {
+	createMemberShowSpin.value = false
+	if (error?.message === "emailExisted") {
+		message.error("Email exists")
+	} else {
+		message.error("Weird shits happens and idk what it is")
+	}
 })
 
 const { mutate: removeMemberMutation, onDone: removeMemberOnDone } = useMutation<string>(
@@ -401,10 +418,6 @@ function openModifyUserModal(index: number) {
 let currentModifyAddCourse = () => {
 	return {} as Course
 }
-let currentModifyRemoveCourse = (index: number) => {
-	// somehow check this item is in old courses or not
-	return
-}
 function updateModifyCourse() {
 	if (currentModifyUser.value === null) {
 		return
@@ -413,11 +426,14 @@ function updateModifyCourse() {
 		if ("__typename" in val) {
 			delete val["__typename"]
 		}
+		val.name.trim()
 	})
-	console.log(currentModifyCourses.value)
 	let modifiedCourses = currentModifyCourses.value.map((val) => JSON.stringify(val))
 	currentModifyCourses.value = currentModifyCourses.value.filter((val, index) => {
-		return modifiedCourses.indexOf(JSON.stringify(val)) === index
+		return (
+			modifiedCourses.indexOf(JSON.stringify(val)) === index &&
+			val.name.replace(/\s/g, "").length != 0
+		)
 	})
 	modifiedCourses = currentModifyCourses.value.map((val) => JSON.stringify(val))
 	let originCoursesStr = currentModifyUser.value.courses.map((val) => JSON.stringify(val))
