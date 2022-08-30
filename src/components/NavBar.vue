@@ -10,21 +10,21 @@
 			font="bold"
 			text="xl">
 			<n-space>
-				<span class="whitespace-nowrap text-xl md:my-0 px-4 py-1.5">CP Discussion</span>
+				<span class="text-xl py-1.5 px-4 whitespace-nowrap md:my-0">CP Discussion</span>
 				<router-link
 					to="/"
-					class="lg:my-0 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					class="rounded-md font-bold bg-viceBlue/2.5 shadow-md text-sm text-white py-1.5 px-4 shadow-black/20 md:my-0 lg:my-0 dark:shadow-md dark:shadow-blue-400/40 hover:bg-indigo-500"
 					>Home</router-link
 				>
 				<router-link
 					to="/about"
-					class="lg:my-0 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					class="rounded-md font-bold bg-viceBlue/2.5 shadow-md text-sm text-white py-1.5 px-4 shadow-black/20 md:my-0 lg:my-0 dark:shadow-md dark:shadow-blue-400/40 hover:bg-indigo-500"
 					>About</router-link
 				>
 				<router-link
 					v-if="isLogin"
 					to="/dashboard"
-					class="lg:my-0 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					class="rounded-md font-bold bg-viceBlue/2.5 shadow-md text-sm text-white py-1.5 px-4 shadow-black/20 md:my-0 lg:my-0 dark:shadow-md dark:shadow-blue-400/40 hover:bg-indigo-500"
 					>Dashboard</router-link
 				>
 			</n-space>
@@ -32,11 +32,11 @@
 				<router-link
 					v-if="!isLogin"
 					to="/login"
-					class="lg:my-1 px-4 py-1.5 md:my-0 px-4 py-1.5 bg-viceBlue/2.5 text-sm text-white font-bold rounded-md hover:bg-indigo-500 shadow-md shadow-black/20 dark:shadow-md dark:shadow-blue-400/40"
+					class="rounded-md font-bold bg-viceBlue/2.5 shadow-md text-sm text-white py-1.5 px-4 shadow-black/20 md:my-0 lg:my-1 dark:shadow-md dark:shadow-blue-400/40 hover:bg-indigo-500"
 					>Login</router-link
 				>
 				<n-dropdown
-					v-else-if="!loading && !error"
+					v-else-if="avatarPath != undefined"
 					trigger="click"
 					:options="avatarOptions"
 					@select="avatarHandleSelect">
@@ -60,15 +60,20 @@ import { NLayoutHeader, NSpace, NSwitch, NAvatar, NDropdown, NIcon } from "naive
 import { isDark } from "~/scripts/useDarks"
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
-import { computed, h, watch, ref, onMounted } from "vue"
+import { computed, h, watch, onMounted } from "vue"
 import type { Component } from "vue"
 import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
-import { useQuery } from "@vue/apollo-composable"
-import gql from "graphql-tag"
+import { useSelfInfoQuery } from "~/scripts/apolloQuery"
 
 const store = useStore()
 const router = useRouter()
 const isLogin = computed(() => store.state.username != null)
+const selfInfo = computed(() => selfInfoResult?.value?.selfInfo)
+const avatarPath = computed(() => {
+	const path = selfInfo.value?.avatarPath
+	if (path == undefined) return undefined
+	return path != "" ? path : "src/assets/avatar.png"
+})
 
 const logoutHandle = () => {
 	window.sessionStorage.clear()
@@ -81,38 +86,15 @@ const changeDarkmode = () => {
 	store.dispatch("favorDarkmode", isDark.value)
 }
 
-const { result, loading, error, refetch } = useQuery<string>(
-	gql`
-		{
-			selfInfo {
-				avatarPath
-			}
-		}
-	`
-)
-
-interface Member {
-	avatarPath: string
-}
-
-const selfInfo = ref<Member | undefined>(undefined)
-const avatarPath = ref("")
-
-watch(result, () => {
-	if (store.state.username) {
-		selfInfo.value = (JSON.parse(JSON.stringify(result?.value ?? ""))["selfInfo"] ??
-			undefined) as Member
-		avatarPath.value = selfInfo.value?.avatarPath
-			? selfInfo.value?.avatarPath
-			: "src/assets/avatar.png"
-	}
-})
+const { result: selfInfoResult, load: selfInfoLoad, refetch: selfInfoRefetch } = useSelfInfoQuery()
 
 onMounted(() => {
-	if (store.state.username) {
-		result.value = undefined
-		refetch()
-	}
+	selfInfoLoad()
+})
+
+watch(isLogin, (val) => {
+	if (!val) return
+	selfInfoRefetch()
 })
 
 const renderIcon = (icon: Component) => {
