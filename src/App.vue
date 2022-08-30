@@ -13,7 +13,7 @@ import {
 import NavBar from "./components/NavBar.vue"
 import FooterComp from "./components/FooterComp.vue"
 import { isDark } from "~/scripts/useDarks"
-import { useStore } from "vuex"
+import { useStore } from "~/scripts/vuex"
 
 const store = useStore()
 
