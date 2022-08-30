@@ -59,16 +59,14 @@
 import { NLayoutHeader, NSpace, NSwitch, NAvatar, NDropdown, NIcon } from "naive-ui"
 import { isDark } from "~/scripts/useDarks"
 import { useRouter } from "vue-router"
-import { useStore } from "vuex"
+import { useStore } from "~/scripts/vuex"
 import { computed, h, watch, onMounted } from "vue"
 import type { Component } from "vue"
 import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
-import { useSelfInfoQuery } from "~/scripts/apolloQuery"
+import { isLogin, refetchSelfInfo, selfInfo } from "~/scripts/login"
 
 const store = useStore()
 const router = useRouter()
-const isLogin = computed(() => store.state.username != null)
-const selfInfo = computed(() => selfInfoResult?.value?.selfInfo)
 const avatarPath = computed(() => {
 	const path = selfInfo.value?.avatarPath
 	if (path == undefined) return undefined
@@ -86,15 +84,13 @@ const changeDarkmode = () => {
 	store.dispatch("favorDarkmode", isDark.value)
 }
 
-const { result: selfInfoResult, load: selfInfoLoad, refetch: selfInfoRefetch } = useSelfInfoQuery()
-
 onMounted(() => {
-	selfInfoLoad()
+	refetchSelfInfo()
 })
 
 watch(isLogin, (val) => {
 	if (!val) return
-	selfInfoRefetch()
+	refetchSelfInfo()
 })
 
 const renderIcon = (icon: Component) => {

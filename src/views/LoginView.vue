@@ -15,7 +15,7 @@
 				<n-space vertical size="medium" text="left">
 					<n-form-item path="username">
 						<n-auto-complete
-							v-model:value="formInline.username"
+							v-model:value="formInline.email"
 							:input-props="{ autocomplete: 'disabled' }"
 							:options="formOptions"
 							placeholder="帳號">
@@ -67,55 +67,48 @@ import {
 	FormRules,
 } from "naive-ui"
 import { useRouter } from "vue-router"
-import { useStore } from "vuex"
 import emailOptions from "~/scripts/autoComplete"
-import { useLoginCheckMutation } from "~/scripts/apolloQuery"
+import { login } from "../scripts/login"
+import { watchOnce } from "@vueuse/core"
 
 const router = useRouter()
 
 const message = useMessage()
-const store = useStore()
 
 const formRules: FormRules = {
-	username: { required: true, message: "請輸入帳號", trigger: "blur" },
+	email: { required: true, message: "請輸入帳號", trigger: "blur" },
 	password: { required: true, message: "請輸入密碼", trigger: "blur" },
 }
 
 const formRef = ref<FormInst | null>(null)
 
 const formInline = reactive({
-	username: "",
+	email: "",
 	password: "",
 })
 
 const formOptions = emailOptions(
 	computed(() => {
-		return formInline.username
+		return formInline.email
 	})
 )
-
-const { mutate: loginMutate, onDone: loginOnDone } = useLoginCheckMutation()
 
 function loginHandle() {
 	formRef.value?.validate((error) => {
 		if (!error) {
-			loginMutate({
-				email: formInline.username,
-				password: formInline.password,
+			const { done: loginDone, success: loginSucess } = login(
+				formInline.email,
+				formInline.password
+			)
+			watchOnce(loginDone, () => {
+				if (loginSucess) {
+					message.success("登入成功")
+					router.replace("/dashboard")
+				} else {
+					message.error("登入失敗")
+				}
 			})
 		}
 	})
 }
-
-loginOnDone((result) => {
-	const auth = result.data?.loginCheck
-	if (auth?.state) {
-		message.success("登入成功")
-		window.localStorage.setItem("refresh_token", auth.token)
-		store.dispatch("username", formInline.username.split("@")[0])
-		router.replace("/dashboard")
-	} else {
-		message.error("登入失敗")
-	}
-})
 </script>
