@@ -11,13 +11,13 @@
 					<n-text type="primary"> Login </n-text>
 				</n-h1>
 			</div>
-			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="rules">
+			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="formRules">
 				<n-space vertical size="medium" text="left">
 					<n-form-item path="username">
 						<n-auto-complete
 							v-model:value="formInline.username"
 							:input-props="{ autocomplete: 'disabled' }"
-							:options="options"
+							:options="formOptions"
 							placeholder="帳號">
 							<template #prefix>
 								<i-carbon:user mr="2" color="#808695" />
@@ -64,28 +64,22 @@ import {
 	NText,
 	useMessage,
 	FormInst,
+	FormRules,
 } from "naive-ui"
-import gql from "graphql-tag"
-import { useMutation } from "@vue/apollo-composable"
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
 import emailOptions from "~/scripts/autoComplete"
+import { useLoginCheckMutation } from "~/scripts/apolloQuery"
+
+const router = useRouter()
 
 const message = useMessage()
 const store = useStore()
 
-// const isLogin = useLoginStore()
-interface Auth {
-	token: string
-	state: boolean
-}
-
-const rules = {
+const formRules: FormRules = {
 	username: { required: true, message: "請輸入帳號", trigger: "blur" },
 	password: { required: true, message: "請輸入密碼", trigger: "blur" },
 }
-
-const router = useRouter()
 
 const formRef = ref<FormInst | null>(null)
 
@@ -94,27 +88,18 @@ const formInline = reactive({
 	password: "",
 })
 
-const options = emailOptions(
+const formOptions = emailOptions(
 	computed(() => {
 		return formInline.username
 	})
 )
 
-const { mutate: loginQuery, onDone: loginOnDone } = useMutation<string>(
-	gql`
-		mutation loginCheck($email: String!, $password: String!) {
-			loginCheck(input: { email: $email, password: $password }) {
-				token
-				state
-			}
-		}
-	`
-)
+const { mutate: loginMutate, onDone: loginOnDone } = useLoginCheckMutation()
 
 function loginHandle() {
 	formRef.value?.validate((error) => {
 		if (!error) {
-			loginQuery({
+			loginMutate({
 				email: formInline.username,
 				password: formInline.password,
 			})
@@ -122,13 +107,11 @@ function loginHandle() {
 	})
 }
 
-const auth = ref<Auth>()
-
 loginOnDone((result) => {
-	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
-	if (auth.value.state) {
+	const auth = result.data?.loginCheck
+	if (auth?.state) {
 		message.success("登入成功")
-		window.localStorage.setItem("refresh_token", auth.value.token)
+		window.localStorage.setItem("refresh_token", auth.token)
 		store.dispatch("username", formInline.username.split("@")[0])
 		router.replace("/dashboard")
 	} else {
