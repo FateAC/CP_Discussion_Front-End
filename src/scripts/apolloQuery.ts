@@ -1,21 +1,23 @@
 import gql from "graphql-tag"
-import { useQuery, useMutation } from "../scripts/apolloUtils"
+import { useLazyQuery, useMutation } from "../scripts/apolloUtils"
 import { Course, Member } from "../scripts/interface"
 import { Post, NewComment, Auth } from "./interface"
 import type { UploadFileInfo } from "naive-ui"
 
 export function useSelfInfoQuery() {
-	return useQuery<{ selfInfo: Member }, Record<string, never>>(
+	return useLazyQuery<{ selfInfo: Member }, Record<string, never>>(
 		gql`
 			{
 				selfInfo {
 					_id
-					eamil
+					email
 					isAdmin
 					username
 					nickname
 					avatarPath
-					courses
+					courses {
+						name
+					}
 				}
 			}
 		`
@@ -23,7 +25,7 @@ export function useSelfInfoQuery() {
 }
 
 export function usePostsQuery() {
-	return useQuery<{ posts: Post[] }, Record<string, never>>(
+	return useLazyQuery<{ posts: Post[] }, Record<string, never>>(
 		gql`
 			{
 				posts {
@@ -43,7 +45,7 @@ export function usePostsQuery() {
 }
 
 export function useMembersQuery() {
-	return useQuery<{ members: Member[] }, Record<string, never>>(
+	return useLazyQuery<{ members: Member[] }, Record<string, never>>(
 		gql`
 			{
 				members {
@@ -61,10 +63,32 @@ export function useMembersQuery() {
 }
 
 export function useIsAdminQuery() {
-	return useQuery<{ isAdmin: boolean }, Record<string, never>>(
+	return useLazyQuery<{ isAdmin: boolean }, Record<string, never>>(
 		gql`
 			{
 				isAdmin
+			}
+		`
+	)
+}
+
+export function useGetPostsByTagsQuery() {
+	return useLazyQuery<{ isAdmin: boolean }, Record<string, never>>(
+		gql`
+			query ($year: Int!, $semester: Int!, $tags: [String!]!) {
+				getPostsByTags(year: $year, semester: $yemester, tags: $tags) {
+					_id
+					title
+					mdPath
+					comments {
+						commenter
+						content
+						mainLevel
+						subLevel
+						timestamp
+						deleted
+					}
+				}
 			}
 		`
 	)
@@ -229,7 +253,7 @@ export function useDeletePostCommentMutation() {
 }
 
 export function useLoginCheckMutation() {
-	useMutation<{ loginCheck: Auth }, { email: string; password: string }>(
+	return useMutation<{ loginCheck: Auth }, { email: string; password: string }>(
 		gql`
 			mutation loginCheck($email: String!, $password: String!) {
 				loginCheck(input: { email: $email, password: $password }) {

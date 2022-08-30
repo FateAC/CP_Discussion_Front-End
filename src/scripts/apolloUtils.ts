@@ -1,106 +1,173 @@
 import { ref, watch } from "vue"
 import {
 	provideApolloClient,
-	useQuery as _useQuery,
-	// useQuery as _useQuery,
+	useLazyQuery as _useLazyQuery,
 	useMutation as _useMutation,
-	UseQueryReturn,
-	UseMutationReturn,
 	MutateOverrideOptions,
 } from "@vue/apollo-composable"
 import apolloClient from "~/scripts/apolloClient"
-import { ApolloError, FetchResult, OperationVariables } from "@apollo/client/core"
-import { DocumentParameter } from "@vue/apollo-composable/dist/useQuery"
+import {
+	ApolloError,
+	ApolloQueryResult,
+	DocumentNode,
+	FetchResult,
+	OperationVariables,
+} from "@apollo/client/core"
+import {
+	DocumentParameter,
+	VariablesParameter,
+	UseQueryOptions,
+} from "@vue/apollo-composable/dist/useQuery"
+import { UseMutationOptions } from "@vue/apollo-composable/dist/useMutation"
 import { refreshAccessToken } from "./auth"
 import router from "~/router/index"
 
 provideApolloClient(apolloClient)
 
-export function useQuery<TResult, TVariables extends OperationVariables = OperationVariables>(
-	document: DocumentParameter<TResult, TVariables>
-): UseQueryReturn<TResult, TVariables> {
-	const ret = _useQuery<TResult, TVariables>(document)
+const isNoTokenProvideError = (error: ApolloError | null | undefined): boolean => {
+	return error?.message == "Access Denied: no token provided"
+}
+
+const isTokenExpiredError = (error: ApolloError | null | undefined): boolean => {
+	return error?.message == "Access Denied: token is expired"
+}
+
+const isAuthError = (error: ApolloError | null | undefined): boolean => {
+	return isNoTokenProvideError(error) || isTokenExpiredError(error)
+}
+
+export function useLazyQuery<TResult, TVariables>(
+	document: DocumentParameter<TResult, TVariables>,
+	variables?: VariablesParameter<TVariables>,
+	options?: UseQueryOptions<TResult, TVariables>
+): ReturnType<typeof _useLazyQuery<TResult, TVariables>> {
+	const ret = _useLazyQuery<TResult, TVariables>(document, variables, options)
+	const load = ret.load
 	const result = ret.result
 	const loading = ret.loading
 	const error = ret.error
+	const refetch = ret.refetch
 	const onError = ret.onError
-	const errorFnList: ((param: ApolloError) => void)[] = []
-	const iterateErrorFnList = (error: ApolloError) => {
-		errorFnList.forEach((fn) => {
-			fn(error)
-		})
+	const onResult = ret.onResult
+	let errorFn: (param: ApolloError) => void
+	let resultFn: (param: ApolloQueryResult<TResult>) => void
+	const initQuery = () => {
+		ret.result = ref(undefined)
+		ret.loading = ref(true)
+		ret.error = ref(null)
 	}
-	ret.result = ref(undefined)
-	ret.loading = ref(true)
-	ret.error = ref(null)
-	onError((err) => {
-		console.log("on error!!")
-		console.log(err.message)
-		if (
-			err.message == "Access Denied: no token provided" ||
-			err.message == "Access Denied: token is expired"
-		) {
-			const { failed: refreshFailed, done: refreshDone } = refreshAccessToken()
-			watch(refreshDone, (done) => {
-				if (!done) return
-				if (refreshFailed.value == false) {
-					// refresh success, refetch again
-					console.log("refetching")
-					ret.restart()
-				} else {
-					// refresh failed, run default error
-					ret.result = result
-					ret.loading = loading
-					ret.error = error
-					iterateErrorFnList(err)
-					router.push({ path: "/login" })
-				}
-			})
-		} else {
-			// default error
-			ret.loading = loading
-			iterateErrorFnList(err)
-		}
-	})
-	ret.onResult(() => {
+	const finishQuery = () => {
 		ret.result = result
 		ret.loading = loading
 		ret.error = error
-	})
+	}
+	ret.load = (document?: DocumentNode, variables?: TVariables, options?: UseQueryOptions) => {
+		initQuery()
+		return load(document, variables, options)
+	}
+	ret.refetch = (
+		variables?: TVariables | undefined
+	): Promise<ApolloQueryResult<TResult>> | undefined => {
+		initQuery()
+		return refetch(variables)
+	}
 	ret.onError = (fn: (param: ApolloError) => void) => {
-		errorFnList.push(fn)
+		errorFn = fn
 		return {
 			off: () => {
 				return
 			},
 		}
 	}
+	ret.onResult = (fn: (param: ApolloQueryResult<TResult>) => void) => {
+		resultFn = fn
+		return {
+			off: () => {
+				return
+			},
+		}
+	}
+	onError((err) => {
+		if (isAuthError(err)) {
+			const { failed: refreshFailed, done: refreshDone } = refreshAccessToken()
+			watch(refreshDone, (done) => {
+				if (!done) return
+				if (refreshFailed.value == false) {
+					// refresh success, refetch again
+					ret.restart()
+				} else {
+					// refresh failed, run default error
+					finishQuery()
+					errorFn(err)
+					router.push({ path: "/login" })
+				}
+			})
+		} else {
+			// default error
+			finishQuery()
+			errorFn(err)
+		}
+	})
+	onResult((param) => {
+		if (!param.error) {
+			// no error
+			finishQuery()
+			resultFn(param)
+		}
+	})
 	return ret
 }
 
 export function useMutation<TResult, TVariables extends OperationVariables = OperationVariables>(
-	document: DocumentParameter<TResult>
-): UseMutationReturn<TResult, TVariables> {
-	const ret = _useMutation<TResult, TVariables>(document)
+	document: DocumentParameter<TResult, TVariables>,
+	options?: UseMutationOptions<TResult, TVariables>
+): ReturnType<typeof _useMutation<TResult, TVariables>> {
+	const ret = _useMutation<TResult, TVariables>(document, options)
 	const mutate = ret.mutate
 	const loading = ret.loading
+	const error = ret.error
 	const onDone = ret.onDone
 	const onError = ret.onError
 	let refetch: () => void
-	const errorFnList: ((param: ApolloError) => void)[] = []
-	const iterateErrorFnList = (error: ApolloError) => {
-		errorFnList.forEach((fn) => {
-			fn(error)
-		})
+	let errorFn: (param: ApolloError) => void
+	let doneFn: (param: FetchResult<TResult>) => void
+	const initQuery = () => {
+		ret.loading = ref(true)
+		ret.error = ref(null)
 	}
-	ret.loading = ref(false)
+	const finishQuery = () => {
+		ret.loading = loading
+		ret.error = error
+	}
+	ret.mutate = (
+		variables?: TVariables | null,
+		overrideOptions?: MutateOverrideOptions<TResult>
+	) => {
+		console.log(variables)
+		initQuery()
+		refetch = () => {
+			mutate(variables, overrideOptions)
+		}
+		return mutate(variables, overrideOptions)
+	}
+	ret.onError = (fn: (param: ApolloError) => void) => {
+		errorFn = fn
+		return {
+			off: () => {
+				return
+			},
+		}
+	}
+	ret.onDone = (fn: (param: FetchResult<TResult>) => void) => {
+		doneFn = fn
+		return {
+			off: () => {
+				return
+			},
+		}
+	}
 	onError((err) => {
-		console.log("on error!!")
-		console.log(err.message)
-		if (
-			err.message == "Access Denied: no token provided" ||
-			err.message == "Access Denied: token is expired"
-		) {
+		if (isAuthError(err)) {
 			const { failed: refreshFailed, done: refreshDone } = refreshAccessToken()
 			watch(refreshDone, (done) => {
 				if (!done) return
@@ -109,44 +176,23 @@ export function useMutation<TResult, TVariables extends OperationVariables = Ope
 					refetch()
 				} else {
 					// refresh failed, run default error
-					ret.loading = loading
-					iterateErrorFnList(err)
+					finishQuery()
+					errorFn(err)
 					router.push({ path: "/login" })
 				}
 			})
 		} else {
 			// default error
-			ret.loading = loading
-			iterateErrorFnList(err)
+			finishQuery()
+			errorFn(err)
 		}
 	})
-	ret.mutate = (
-		variables?: TVariables | null,
-		overrideOptions?: MutateOverrideOptions<TResult>
-	) => {
-		console.log("on mutate!!")
-		ret.loading.value = true
-		refetch = () => {
-			mutate(variables, overrideOptions)
+	onDone((param) => {
+		if (!param.errors) {
+			// no error
+			finishQuery()
+			doneFn(param)
 		}
-		return mutate(variables, overrideOptions)
-	}
-	ret.onDone = (fn: (param: FetchResult<TResult>) => void) => {
-		return onDone((param) => {
-			console.log("on done!!", param.data)
-			if (!param.errors) {
-				ret.loading = loading
-				fn(param)
-			}
-		})
-	}
-	ret.onError = (fn: (param: ApolloError) => void) => {
-		errorFnList.push(fn)
-		return {
-			off: () => {
-				return
-			},
-		}
-	}
+	})
 	return ret
 }
