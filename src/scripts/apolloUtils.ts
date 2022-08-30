@@ -98,21 +98,21 @@ export function useLazyQuery<TResult, TVariables>(
 				} else {
 					// refresh failed, run default error
 					finishQuery()
-					errorFn(err)
+					errorFn?.(err)
 					router.push({ path: "/login" })
 				}
 			})
 		} else {
 			// default error
 			finishQuery()
-			errorFn(err)
+			errorFn?.(err)
 		}
 	})
 	onResult((param) => {
 		if (!param.error) {
 			// no error
 			finishQuery()
-			resultFn(param)
+			resultFn?.(param)
 		}
 	})
 	return ret
@@ -143,7 +143,6 @@ export function useMutation<TResult, TVariables extends OperationVariables = Ope
 		variables?: TVariables | null,
 		overrideOptions?: MutateOverrideOptions<TResult>
 	) => {
-		console.log(variables)
 		initQuery()
 		refetch = () => {
 			mutate(variables, overrideOptions)
@@ -177,21 +176,21 @@ export function useMutation<TResult, TVariables extends OperationVariables = Ope
 				} else {
 					// refresh failed, run default error
 					finishQuery()
-					errorFn(err)
+					errorFn?.(err)
 					router.push({ path: "/login" })
 				}
 			})
 		} else {
 			// default error
 			finishQuery()
-			errorFn(err)
+			errorFn?.(err)
 		}
 	})
 	onDone((param) => {
 		if (!param.errors) {
 			// no error
 			finishQuery()
-			doneFn(param)
+			doneFn?.(param)
 		}
 	})
 	return ret
