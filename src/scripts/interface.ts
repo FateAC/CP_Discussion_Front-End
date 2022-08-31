@@ -25,6 +25,15 @@ export interface Post {
 	comments: Comment[]
 }
 
+export interface NewPost {
+	poster: string
+	title: string
+	year: number
+	semester: number
+	tags: string[]
+	mdFile: File
+}
+
 export interface Comment {
 	commenter: string
 	content: string

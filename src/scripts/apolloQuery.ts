@@ -1,7 +1,7 @@
 import gql from "graphql-tag"
 import { useLazyQuery, useMutation } from "../scripts/apolloUtils"
 import { Course, Member } from "../scripts/interface"
-import { Post, NewComment, Auth } from "./interface"
+import { Post, NewComment, Auth, NewPost } from "./interface"
 import type { UploadFileInfo } from "naive-ui"
 
 export function useSelfInfoQuery() {
@@ -115,17 +115,7 @@ export function useResetPWDMutation() {
 }
 
 export function useAddPostMutation() {
-	return useMutation<
-		{ addPost: Post },
-		{
-			poster: string
-			title: string
-			year: number
-			semester: number
-			tags: string[]
-			mdFile: UploadFileInfo
-		}
-	>(
+	return useMutation<{ addPost: Post }, { input: NewPost }>(
 		gql`
 			mutation ($input: NewPost!) {
 				addPost(input: $input) {
