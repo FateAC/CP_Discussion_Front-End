@@ -64,6 +64,7 @@ import { computed, h, watch, onMounted } from "vue"
 import type { Component } from "vue"
 import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
 import { isLogin, refetchSelfInfo, selfInfo } from "~/scripts/login"
+import { DropdownMixedOption } from "naive-ui/es/dropdown/src/interface"
 
 const store = useStore()
 const router = useRouter()
@@ -101,7 +102,7 @@ const renderIcon = (icon: Component) => {
 	}
 }
 
-const avatarOptions = [
+const avatarOptions: DropdownMixedOption[] = [
 	{
 		label: "Profile",
 		key: "profile",
