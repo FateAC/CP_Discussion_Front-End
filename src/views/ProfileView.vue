@@ -88,7 +88,7 @@ import {
 } from "naive-ui"
 import type { UploadInst, UploadFileInfo } from "naive-ui"
 import { watch, ref, onMounted } from "vue"
-import { useStore } from "vuex"
+import { useStore } from "~/scripts/vuex"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 

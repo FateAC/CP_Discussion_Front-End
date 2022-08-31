@@ -209,7 +209,7 @@ import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
 import emailOptions from "~/scripts/autoComplete"
 import bcrypt from "bcryptjs"
-import { useStore } from "vuex"
+import { useStore } from "~/scripts/vuex"
 import { shouldWriteResult } from "@apollo/client/core/QueryInfo"
 
 const store = useStore()

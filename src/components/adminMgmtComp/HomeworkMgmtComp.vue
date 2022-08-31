@@ -134,7 +134,7 @@ import {
 import type { UploadFileInfo } from "naive-ui"
 import { useQuery, useMutation } from "@vue/apollo-composable"
 import gql from "graphql-tag"
-import { useStore } from "vuex"
+import { useStore } from "~/scripts/vuex"
 import { useRouter } from "vue-router"
 
 const message = useMessage()

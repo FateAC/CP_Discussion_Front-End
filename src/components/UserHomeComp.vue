@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { NCard, NH1, NH3 } from "naive-ui"
-import { useStore } from "vuex"
+import { useStore } from "~/scripts/vuex"
 
 const store = useStore()
 const userName = store.state.username
