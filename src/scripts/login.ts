@@ -25,6 +25,13 @@ export const login = (email: string, password: string) => {
 	return { done: loginDone, success: loginSuccess }
 }
 
+export const logout = () => {
+	window.sessionStorage.clear()
+	window.localStorage.removeItem("refresh_token")
+	window.localStorage.removeItem("access_token")
+	store.dispatch("username", null)
+}
+
 loginOnDone((result) => {
 	const auth = result.data?.loginCheck
 	if (auth?.state) {
