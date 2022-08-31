@@ -1,4 +1,4 @@
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { useLoginCheckMutation, useSelfInfoQuery } from "~/scripts/apolloQuery"
 import { store } from "~/scripts/vuex"
 
@@ -8,8 +8,12 @@ const username = ref<string>()
 const loginDone = ref<boolean>()
 const loginSuccess = ref<boolean>()
 
+selfInfoLoad()
+
 export const isLogin = computed(() => store?.state.username != undefined)
 export const selfInfo = computed(() => selfInfoResult?.value?.selfInfo)
+
+export { selfInfoRefetch }
 
 export const login = (email: string, password: string) => {
 	loginDone.value = false
@@ -31,8 +35,7 @@ loginOnDone((result) => {
 	loginDone.value = true
 })
 
-export const refetchSelfInfo = () => {
-	if (!isLogin.value) return
-	if (selfInfoResult == undefined) selfInfoLoad()
-	else selfInfoRefetch()
-}
+watch(isLogin, (val) => {
+	if (!val) return
+	selfInfoRefetch()
+})
