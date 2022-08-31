@@ -60,10 +60,10 @@ import { NLayoutHeader, NSpace, NSwitch, NAvatar, NDropdown, NIcon } from "naive
 import { isDark } from "~/scripts/useDarks"
 import { useRouter } from "vue-router"
 import { useStore } from "~/scripts/vuex"
-import { computed, h, watch, onMounted } from "vue"
+import { computed, h } from "vue"
 import type { Component } from "vue"
 import { PersonCircleOutline as profileIcon, LogOutOutline as logoutIcon } from "@vicons/ionicons5"
-import { isLogin, refetchSelfInfo, selfInfo } from "~/scripts/login"
+import { isLogin, selfInfo, logout } from "~/scripts/login"
 import { DropdownMixedOption } from "naive-ui/es/dropdown/src/interface"
 
 const store = useStore()
@@ -75,24 +75,13 @@ const avatarPath = computed(() => {
 })
 
 const logoutHandle = () => {
-	window.sessionStorage.clear()
-	store.dispatch("username", null)
+	logout()
 	router.replace("/login")
-	return
 }
 
 const changeDarkmode = () => {
 	store.dispatch("favorDarkmode", isDark.value)
 }
-
-onMounted(() => {
-	refetchSelfInfo()
-})
-
-watch(isLogin, (val) => {
-	if (!val) return
-	refetchSelfInfo()
-})
 
 const renderIcon = (icon: Component) => {
 	return () => {
