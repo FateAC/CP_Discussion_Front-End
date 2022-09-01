@@ -1,10 +1,10 @@
 <template>
 	<n-h1>Homework Management</n-h1>
-	<div max-w="5xl" m="x-auto" v-if="!loading && !error">
+	<div max-w="5xl" m="x-auto" v-if="!postsLoading && !postsError">
 		<div text="right">
-			<n-button type="success" @click="createHomeworkModal = true">新增作業</n-button>
+			<n-button type="success" @click="showHomeworkModal = true">新增作業</n-button>
 		</div>
-		<n-modal v-model:show="createHomeworkModal">
+		<n-modal v-model:show="showHomeworkModal">
 			<n-card style="width: 600px" title="新增作業">
 				<n-form
 					ref="createPostFormRef"
@@ -51,7 +51,13 @@
 			<template v-for="[course, posts] in dbHomework" :key="course">
 				<n-collapse-item :name="course">
 					<template #header>
-						<div font="bold" text="lg">{{ course }}</div>
+						<div font="bold" text="lg">
+							{{
+								parseCourseToCourseTime({ name: course }).year.toString() +
+								"-" +
+								(parseCourseToCourseTime({ name: course }).semester + 1).toString()
+							}}
+						</div>
 					</template>
 					<n-table :single-line="false" m="t-4" text="center">
 						<thead font="extrabold">
@@ -77,8 +83,8 @@
 									</n-button>
 								</td>
 								<td>{{ post.poster }}</td>
-								<td><n-time :time="post.createTime" /></td>
-								<td><n-time :time="post.lastModifyTime" /></td>
+								<td><n-time :time="new Date(post.createTime)" /></td>
+								<td><n-time :time="new Date(post.lastModifyTime)" /></td>
 								<td>
 									<n-tag v-for="tag in post.tags" :key="tag">
 										{{ tag }}
@@ -107,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from "vue"
+import { ref, reactive, onMounted, computed } from "vue"
 import {
 	NInput,
 	NTag,
@@ -130,50 +136,40 @@ import {
 	NPopconfirm,
 	useMessage,
 	NTime,
+	FormRules,
 } from "naive-ui"
 import type { UploadFileInfo } from "naive-ui"
-import { useQuery, useMutation } from "@vue/apollo-composable"
-import gql from "graphql-tag"
-import { useStore } from "~/scripts/vuex"
 import { useRouter } from "vue-router"
+import { usePostsQuery, useAddPostMutation, useRemovePostMutation } from "~/scripts/apolloQuery"
+import { CourseTime, Post, NewPost } from "~/scripts/interface"
+import { parseCourseTimeToCourse, parseCourseToCourseTime } from "~/scripts/course"
+import { SelectBaseOption } from "naive-ui/es/select/src/interface"
+import { selfInfo } from "../../scripts/login"
 
 const message = useMessage()
 const router = useRouter()
-const store = useStore()
 
-interface Post {
-	year: string
-	semester: string
-	_id: string
-	_pid: string
-	poster: string
-	title: string
-	tags: string[]
-	mdPath: string
-	createTime: Date
-	lastModifyTime: Date
-}
-
-const createHomeworkModal = ref(false)
+const showHomeworkModal = ref(false)
 const uploadMD = ref<UploadInst | null>(null)
 const MDfiles = ref<UploadFileInfo[]>([])
 const createPostFormRef = ref<FormInst | null>(null)
 
-const createPostFormInline = reactive({
+const createPostFormInline = reactive<NewPost>({
+	poster: "",
 	title: "",
 	year: new Date().getFullYear() - 1911,
 	semester: 1,
-	mdPath: "",
-	tags: ref(["Homework"]),
+	tags: ["Homework"],
+	mdFile: new File([], ""),
 })
 
-const createPostRule = {
+const createPostRule: FormRules = {
 	title: { required: true, message: "Please enter the post title", trigger: "blur" },
 	year: { type: "number", required: true, message: "Please enter the year ", trigger: "blur" },
 	//mdPath: { type:"text", required: true, message: "Please upload the post file", trigger: "blur" },
 }
 
-const postSemesterOption = [
+const postSemesterOption: SelectBaseOption[] = [
 	{
 		label: "Fall",
 		value: 0,
@@ -192,98 +188,46 @@ const beforeMdUpload = async (data: { file: UploadFileInfo; fileList: UploadFile
 	return true
 }
 
-const { result, loading, error, refetch } = useQuery<string>(
-	gql`
-		{
-			posts {
-				_id
-				poster
-				title
-				year
-				semester
-				tags
-				mdPath
-				createTime
-				lastModifyTime
-			}
-		}
-	`
-)
+const {
+	result: postsResult,
+	loading: postsLoading,
+	error: postsError,
+	load: postsLoad,
+	refetch: postsRefetch,
+} = usePostsQuery()
+postsLoad()
 
-const { mutate: uploadPostMutate, onDone: uploadPostDone } = useMutation<string>(
-	gql`
-		mutation addPost($input: NewPost!) {
-			addPost(input: $input) {
-				_id
-				poster
-				title
-				year
-				semester
-				tags
-				mdPath
-				createTime
-				lastModifyTime
-			}
-		}
-	`
-)
+const { mutate: uploadPostMutate, onDone: uploadPostDone } = useAddPostMutation()
 
-const { mutate: deletePostMutate, onDone: deletePostDone } = useMutation<string>(
-	gql`
-		mutation removePost($input: String!) {
-			removePost(id: $input) {
-				_id
-				poster
-				title
-				year
-				semester
-				tags
-				mdPath
-				createTime
-				lastModifyTime
-			}
-		}
-	`
-)
+const { mutate: deletePostMutate, onDone: deletePostDone } = useRemovePostMutation()
 
-const dbHomework = ref(new Map())
-
-watch(result, () => {
-	if (!result.value) {
-		return
-	}
-	let hws = (JSON.parse(JSON.stringify(result.value))["posts"] ?? []) as Post[]
-	dbHomework.value = new Map()
-	hws.forEach((hw) => {
-		const course = `${hw["year"]}-${hw["semester"] + 1}`
-		if (dbHomework.value.has(course) === false) {
-			dbHomework.value.set(course, [])
-		}
-		let current = dbHomework.value.get(course)
-		current?.push({
-			year: hw["year"],
-			semester: hw["semester"],
-			_id: hw["_id"],
-			_pid: "still not here",
-			poster: hw["poster"],
-			title: hw["title"],
-			tags: hw["tags"],
-			mdPath: hw["mdPath"],
-			createTime: new Date(hw["createTime"]),
-			lastModifyTime: new Date(hw["lastModifyTime"]),
-		} as Post)
-	})
+const dbHomework = computed<Map<string, Post[]>>(() => {
+	return new Map(
+		[
+			...(
+				postsResult.value?.posts?.reduce((map: Map<string, Post[]>, post: Post) => {
+					const courseTime: CourseTime = {
+						year: Number(post.year),
+						semester: Number(post.semester),
+					}
+					const course = parseCourseTimeToCourse(courseTime)
+					if (!map.has(course.name)) map.set(course.name, [])
+					map.get(course.name)?.push(post)
+					return map
+				}, new Map<string, Post[]>()) ?? new Map<string, Post[]>()
+			).entries(),
+		].sort()
+	)
 })
 
 const openPostView = (course: string, index: number) => {
-	const post = dbHomework.value.get(course)[index]
-	const year = post.year + 1911 + post.semester
-	const semester = post.semester == 0 ? "Fall" : "Spring"
+	const post = dbHomework.value.get(course)?.[index]
+	if (!post) return
 	const routeURL = router.resolve({
 		name: "homework",
 		query: {
-			year: year,
-			semester: semester,
+			year: post.year.toString(),
+			semester: post.semester.toString(),
 			menuValue: index.toString(),
 		},
 	})
@@ -292,7 +236,7 @@ const openPostView = (course: string, index: number) => {
 
 const deletePostHandle = (id: string) => {
 	deletePostMutate({
-		input: id,
+		id: id,
 	})
 }
 
@@ -303,43 +247,37 @@ const createPostClickHandle = () => {
 	}
 	createPostFormRef.value?.validate((error) => {
 		if (!error) {
-			let file = MDfiles.value[0]
-			uploadPostMutate({
-				input: {
-					mdFile: file.file,
-					poster: store.state.username,
-					title: createPostFormInline.title,
-					year: createPostFormInline.year,
-					semester: createPostFormInline.semester,
-					tags: createPostFormInline.tags,
-				},
-			})
+			const file = MDfiles.value?.[0]?.file
+			if (file) {
+				createPostFormInline.poster = selfInfo.value?.username ?? ""
+				createPostFormInline.mdFile = file
+				uploadPostMutate({ input: createPostFormInline })
+			}
 		}
 	})
 }
 
 uploadPostDone((resultMutation) => {
-	if (JSON.parse(JSON.stringify(resultMutation.data))["addPost"]) {
+	if (resultMutation.data?.addPost) {
 		message.success("Post success")
-		createHomeworkModal.value = false
-		refetch()
+		showHomeworkModal.value = false
+		postsRefetch()
 	} else {
 		message.error("Post failed")
 	}
 })
 
 deletePostDone((resultMutation) => {
-	if (JSON.parse(JSON.stringify(resultMutation.data))["removePost"]) {
+	if (resultMutation.data?.removePost) {
 		message.success("Delete success")
-		createHomeworkModal.value = false
-		refetch()
+		showHomeworkModal.value = false
+		postsRefetch()
 	} else {
 		message.error("Delete failed")
 	}
 })
 
 onMounted(() => {
-	result.value = undefined
-	refetch()
+	postsRefetch()
 })
 </script>
