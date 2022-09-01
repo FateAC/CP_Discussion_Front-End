@@ -2,6 +2,11 @@ export interface Course {
 	name: string
 }
 
+export interface CourseTime {
+	year: number
+	semester: number
+}
+
 export interface Member {
 	_id: string
 	email: string
