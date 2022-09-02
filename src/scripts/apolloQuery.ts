@@ -2,7 +2,6 @@ import gql from "graphql-tag"
 import { useLazyQuery, useMutation } from "../scripts/apolloUtils"
 import { Course, Member } from "../scripts/interface"
 import { Post, NewComment, Auth, NewPost } from "./interface"
-import type { UploadFileInfo } from "naive-ui"
 
 export function useSelfInfoQuery() {
 	return useLazyQuery<{ selfInfo: Member }, Record<string, never>>(
@@ -73,13 +72,22 @@ export function useIsAdminQuery() {
 }
 
 export function useGetPostsByTagsQuery() {
-	return useLazyQuery<{ isAdmin: boolean }, Record<string, never>>(
+	return useLazyQuery<
+		{ getPostsByTags: Post[] },
+		{ year: number; semester: number; tags: string[] }
+	>(
 		gql`
 			query ($year: Int!, $semester: Int!, $tags: [String!]!) {
-				getPostsByTags(year: $year, semester: $yemester, tags: $tags) {
+				getPostsByTags(year: $year, semester: $semester, tags: $tags) {
 					_id
+					poster
 					title
+					year
+					semester
+					tags
 					mdPath
+					createTime
+					lastModifyTime
 					comments {
 						commenter
 						content
