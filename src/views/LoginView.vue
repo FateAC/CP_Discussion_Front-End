@@ -1,6 +1,6 @@
 <template>
 	<n-card
-		class="bg-transparent bg-gradient-to-r from-viceGreen/50 to-viceBlue/50 rounded-xl shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
+		class="bg-transparent bg-gradient-to-r rounded-xl from-viceGreen/50 to-viceBlue/50 shadow-lg shadow-black/20 dark:shadow-lg dark:shadow-blue-400/40"
 		w="md"
 		max-w="md"
 		m="x-auto y-12"
@@ -11,13 +11,13 @@
 					<n-text type="primary"> Login </n-text>
 				</n-h1>
 			</div>
-			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="rules">
+			<n-form ref="formRef" label-placement="left" :model="formInline" :rules="formRules">
 				<n-space vertical size="medium" text="left">
 					<n-form-item path="username">
 						<n-auto-complete
-							v-model:value="formInline.username"
+							v-model:value="formInline.email"
 							:input-props="{ autocomplete: 'disabled' }"
-							:options="options"
+							:options="formOptions"
 							placeholder="帳號">
 							<template #prefix>
 								<i-carbon:user mr="2" color="#808695" />
@@ -64,75 +64,51 @@ import {
 	NText,
 	useMessage,
 	FormInst,
+	FormRules,
 } from "naive-ui"
-import gql from "graphql-tag"
-import { useMutation } from "@vue/apollo-composable"
 import { useRouter } from "vue-router"
-import { useStore } from "vuex"
 import emailOptions from "~/scripts/autoComplete"
-
-const message = useMessage()
-const store = useStore()
-
-// const isLogin = useLoginStore()
-interface Auth {
-	token: string
-	state: boolean
-}
-
-const rules = {
-	username: { required: true, message: "請輸入帳號", trigger: "blur" },
-	password: { required: true, message: "請輸入密碼", trigger: "blur" },
-}
+import { login } from "../scripts/login"
+import { watchOnce } from "@vueuse/core"
 
 const router = useRouter()
+
+const message = useMessage()
+
+const formRules: FormRules = {
+	email: { required: true, message: "請輸入帳號", trigger: "blur" },
+	password: { required: true, message: "請輸入密碼", trigger: "blur" },
+}
 
 const formRef = ref<FormInst | null>(null)
 
 const formInline = reactive({
-	username: "",
+	email: "",
 	password: "",
 })
 
-const options = emailOptions(
+const formOptions = emailOptions(
 	computed(() => {
-		return formInline.username
+		return formInline.email
 	})
-)
-
-const { mutate: loginQuery, onDone: loginOnDone } = useMutation<string>(
-	gql`
-		mutation loginCheck($email: String!, $password: String!) {
-			loginCheck(input: { email: $email, password: $password }) {
-				token
-				state
-			}
-		}
-	`
 )
 
 function loginHandle() {
 	formRef.value?.validate((error) => {
 		if (!error) {
-			loginQuery({
-				email: formInline.username,
-				password: formInline.password,
+			const { done: loginDone, success: loginSucess } = login(
+				formInline.email,
+				formInline.password
+			)
+			watchOnce(loginDone, () => {
+				if (loginSucess) {
+					message.success("登入成功")
+					router.replace("/dashboard")
+				} else {
+					message.error("登入失敗")
+				}
 			})
 		}
 	})
 }
-
-const auth = ref<Auth>()
-
-loginOnDone((result) => {
-	auth.value = JSON.parse(JSON.stringify(result.data))["loginCheck"] as Auth
-	if (auth.value.state) {
-		message.success("登入成功")
-		window.localStorage.setItem("token", auth.value.token)
-		store.dispatch("username", formInline.username.split("@")[0])
-		router.replace("/dashboard")
-	} else {
-		message.error("登入失敗")
-	}
-})
 </script>

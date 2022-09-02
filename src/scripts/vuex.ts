@@ -1,16 +1,22 @@
-import { createStore } from "vuex"
+import { InjectionKey } from "vue"
+import { createStore, useStore as baseUseStore, Store } from "vuex"
 import VuexPersistence from "vuex-persist"
 
-const vuexLocal = new VuexPersistence<RootState>({
+export interface State {
+	username: string | undefined
+	favorDarkmode: boolean | undefined
+}
+
+export const key: InjectionKey<Store<State>> = Symbol()
+
+const vuexLocal = new VuexPersistence<State>({
 	storage: window.localStorage,
 })
 
-const store = createStore({
-	state() {
-		return {
-			username: null,
-			favorDarkmode: null,
-		}
+export const store = createStore<State>({
+	state: {
+		username: undefined,
+		favorDarkmode: undefined,
 	},
 	getters: {
 		username: (state) => {
@@ -39,4 +45,6 @@ const store = createStore({
 	plugins: [vuexLocal.plugin],
 })
 
-export default store
+export function useStore() {
+	return baseUseStore(key)
+}

@@ -1,5 +1,5 @@
 import { createRouter, RouteRecordRaw, Router, createWebHistory } from "vue-router"
-import store from "~/scripts/vuex"
+import { store } from "~/scripts/vuex"
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -55,7 +55,7 @@ const router: Router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-	if (store.state.username !== null) {
+	if (store?.state.username) {
 		if (to.path === "/login" || to.path === "/resetpwd") {
 			router.push("/dashboard")
 		}

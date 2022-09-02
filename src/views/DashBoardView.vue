@@ -1,5 +1,5 @@
 <template>
-	<div v-if="!isAdminLoading && !isAdminError" display="flex" w="full">
+	<div v-if="isAdmin != undefined" display="flex" w="full">
 		<sidebar-comp>
 			<!-- For Admin -->
 			<div v-if="isAdmin">
@@ -15,7 +15,7 @@
 			</div>
 			<!-- For User -->
 			<div v-else>
-				<div v-if="!selfInfoLoading && !selfInfoError">
+				<div v-if="selfInfo != undefined">
 					<div v-for="(data, index) in mockUserSiderBar" :key="index">
 						<n-h4
 							font="bold"
@@ -49,90 +49,42 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, h, watch, onMounted } from "vue"
+import { shallowRef, ref, h, computed, onMounted, watch } from "vue"
 import { RouterLink } from "vue-router"
-import { NH2, NH4, NCard, NMenu } from "naive-ui"
-import type { MenuOption } from "naive-ui"
-import { useQuery } from "@vue/apollo-composable"
-import gql from "graphql-tag"
+import { NH2, NH4, NCard, NMenu, MenuOption } from "naive-ui"
 import AdminMgmtHomeComp from "~/components/adminMgmtComp/AdminMgmtHomeComp.vue"
 import MemberMgmtComp from "~/components/adminMgmtComp/MemberMgmtComp.vue"
 import HomeworkMgmtComp from "~/components/adminMgmtComp/HomeworkMgmtComp.vue"
 import ContentComp from "~/components/ContentComp.vue"
 import UserHomeComp from "~/components/UserHomeComp.vue"
+import { isLogin, selfInfo } from "~/scripts/login"
+import router from "~/router/index"
 
-const {
-	result: isAdminResult,
-	loading: isAdminLoading,
-	error: isAdminError,
-	refetch: isAdminRefetch,
-} = useQuery<string>(
-	gql`
-		{
-			isAdmin
-		}
-	`
-)
-
+const isAdmin = computed(() => selfInfo.value?.isAdmin ?? false)
 const currentView = shallowRef()
-const isAdmin = ref<boolean | undefined>(undefined)
 
-watch(isAdminResult, () => {
-	isAdmin.value = (JSON.parse(JSON.stringify(isAdminResult?.value ?? ""))["isAdmin"] ??
-		false) as boolean
-	currentView.value = isAdmin?.value ? AdminMgmtHomeComp : UserHomeComp
+onMounted(() => {
+	currentView.value = isAdmin.value ? AdminMgmtHomeComp : UserHomeComp
 })
 
-interface Courses {
-	name: string
-}
-
-interface Member {
-	courses: Courses[]
-}
-
-const {
-	result: selfInfoResult,
-	loading: selfInfoLoading,
-	error: selfInfoError,
-	refetch: selfInfoRefetch,
-} = useQuery<string>(
-	gql`
-		{
-			selfInfo {
-				courses {
-					name
-				}
-			}
-		}
-	`
-)
+watch(isLogin, () => {
+	router.go(0)
+})
 
 interface CourseData {
 	year: number
 	semester: string
 }
 
-const selfInfo = ref<Member | undefined>(undefined)
-let mockUserSiderBar: CourseData[] = []
-
-watch(selfInfoResult, () => {
-	selfInfo.value = (JSON.parse(JSON.stringify(selfInfoResult?.value ?? ""))["selfInfo"] ??
-		undefined) as Member
-	mockUserSiderBar.length = 0
-	selfInfo.value["courses"].forEach((element) => {
-		mockUserSiderBar.push({
-			year: Number(element["name"].split("_")[0]),
-			semester: element["name"].split("_")[1],
-		})
-	})
-})
-
-onMounted(() => {
-	isAdminResult.value = undefined
-	selfInfoResult.value = undefined
-	isAdminRefetch()
-	selfInfoRefetch()
+const mockUserSiderBar = computed<CourseData[]>(() => {
+	return (
+		selfInfo.value?.courses.map<CourseData>((course) => {
+			return {
+				year: Number(course.name.split("_")[0]),
+				semester: course.name.split("_")[1],
+			}
+		}) ?? []
+	)
 })
 
 const course = ref<CourseData | null>(null)
